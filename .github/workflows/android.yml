@@ -23,10 +23,10 @@ jobs:
           node-version: 22
 
       - name: Setup Java
-  uses: actions/setup-java@v4
-  with:
-    distribution: temurin
-    java-version: 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
 
       - name: Create Capacitor project
         shell: bash
@@ -38,10 +38,6 @@ jobs:
 
           cp Index.html app/www/index.html
 
-          if [ -d assets ]; then
-            cp -R assets app/www/
-          fi
-
           cd app
 
           npm init -y
@@ -49,51 +45,11 @@ jobs:
           npm install --save-exact \
             @capacitor/core@8 \
             @capacitor/cli@8 \
-            @capacitor/android@8 \
-            @capacitor-community/admob@8.1.0
+            @capacitor/android@8
 
-          npx cap init \
-            "HTML App Builder" \
-            "com.htmlapp.builder" \
-            --web-dir www
+          npx cap init "HTML App Builder" "com.htmlapp.builder" --web-dir www
 
           npx cap add android
-
-      - name: Configure AdMob
-        shell: bash
-        run: |
-          set -e
-
-          cd app
-
-          mkdir -p android/app/src/main/res/values
-
-          cat > android/app/src/main/res/values/admob.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <string name="admob_app_id">ca-app-pub-9940728659432865~9994566162</string>
-          </resources>
-          EOF
-
-          python3 - <<'PY'
-          from pathlib import Path
-
-          p = Path("android/app/src/main/AndroidManifest.xml")
-          s = p.read_text()
-
-          meta = """        <meta-data
-              android:name="com.google.android.gms.ads.APPLICATION_ID"
-              android:value="@string/admob_app_id" />"""
-
-          if "com.google.android.gms.ads.APPLICATION_ID" not in s:
-              s = s.replace(
-                  "</application>",
-                  meta + "\n    </application>",
-                  1
-              )
-
-          p.write_text(s)
-          PY
 
       - name: Sync Capacitor
         shell: bash
@@ -107,9 +63,9 @@ jobs:
         run: |
           set -e
 
-          test -f app/android/gradlew
-          test -f app/android/settings.gradle
-          test -f app/android/app/build.gradle
+          test -f android/gradlew
+          test -f android/settings.gradle
+          test -f android/app/build.gradle
 
           echo "Android project OK"
 
@@ -122,9 +78,7 @@ jobs:
 
           chmod +x gradlew
 
-          ./gradlew assembleDebug \
-            --stacktrace \
-            --no-daemon
+          ./gradlew assembleDebug --stacktrace --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
