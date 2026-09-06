@@ -17,72 +17,205 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: "17"
 
-      - name: Create Capacitor project
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Create Android project
         shell: bash
         run: |
           set -e
 
-          rm -rf app
-          mkdir -p app/www
+          mkdir -p app/src/main/java/com/htmlapp/builder
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/assets/public
 
-          cp Index.html app/www/index.html
+          cp Index.html app/src/main/assets/public/index.html
 
-          cd app
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
 
-          npm init -y
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
 
-          npm install --save-exact \
-            @capacitor/core@8 \
-            @capacitor/cli@8 \
-            @capacitor/android@8
+          rootProject.name = "HTML-App-Builder"
+          include(":app")
+          EOF
 
-          npx cap init "HTML App Builder" "com.htmlapp.builder" --web-dir www
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
 
-          npx cap add android
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          android.nonTransitiveRClass=true
+          EOF
 
-      - name: Sync Capacitor
-        shell: bash
-        run: |
-          set -e
-          cd app
-          npx cap sync android
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
 
-      - name: Check Android project
-        shell: bash
-        run: |
-          set -e
+          android {
+              namespace "com.htmlapp.builder"
+              compileSdk 35
 
-          test -f app/android/gradlew
-          test -f app/android/settings.gradle
-          test -f app/android/app/build.gradle
+              defaultConfig {
+                  applicationId "com.htmlapp.builder"
+                  minSdk 21
+                  targetSdk 35
+                  versionCode 1
+                  versionName "1.0.0"
+              }
 
-          echo "Android project OK"
+              buildTypes {
+                  debug {
+                      debuggable true
+                  }
+
+                  release {
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile(
+                          'proguard-android-optimize.txt'
+                      ), 'proguard-rules.pro'
+                  }
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+
+          dependencies {
+          }
+          EOF
+
+          touch app/proguard-rules.pro
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="AppTheme"
+                  parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+              <application
+                  android:allowBackup="true"
+                  android:label="HTML App Builder"
+                  android:supportsRtl="true"
+                  android:usesCleartextTraffic="true"
+                  android:theme="@style/AppTheme">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
+
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+
+                  </activity>
+
+              </application>
+
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/htmlapp/builder/MainActivity.java <<'EOF'
+          package com.htmlapp.builder;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.widget.LinearLayout;
+
+          public class MainActivity extends Activity {
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  LinearLayout root = new LinearLayout(this);
+                  root.setOrientation(LinearLayout.VERTICAL);
+
+                  WebView webView = new WebView(this);
+
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+                  settings.setBuiltInZoomControls(false);
+                  settings.setDisplayZoomControls(false);
+
+                  webView.loadUrl(
+                      "file:///android_asset/public/index.html"
+                  );
+
+                  root.addView(
+                      webView,
+                      new LinearLayout.LayoutParams(
+                          -1,
+                          -1
+                      )
+                  );
+
+                  setContentView(root);
+              }
+          }
+          EOF
 
       - name: Build APK
         shell: bash
         run: |
           set -e
 
-          cd app/android
+          gradle assembleDebug --stacktrace --no-daemon
 
-          chmod +x gradlew
+      - name: Find APK
+        shell: bash
+        run: |
+          set -e
 
-          ./gradlew assembleDebug --stacktrace --no-daemon
+          find app/build/outputs -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HTML-App-Builder-APK
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
