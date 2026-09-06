@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,27 +20,53 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
+          cache: gradle
 
       - name: Create Capacitor project
+        shell: bash
         run: |
+          set -e
+
+          rm -rf app
           mkdir -p app/www
+
           cp Index.html app/www/index.html
+
+          if [ -d assets ]; then
+            cp -R assets app/www/
+          fi
+
           cd app
+
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor-community/admob@8
-          npx cap init "HTML App" "com.htmlapp.builder" --web-dir www
+
+          npm install --save-exact \
+            @capacitor/core@8 \
+            @capacitor/cli@8 \
+            @capacitor/android@8 \
+            @capacitor-community/admob@8.1.0
+
+          npx cap init \
+            "HTML App Builder" \
+            "com.htmlapp.builder" \
+            --web-dir www
+
           npx cap add android
 
       - name: Configure AdMob
+        shell: bash
         run: |
+          set -e
+
           cd app
+
           mkdir -p android/app/src/main/res/values
 
           cat > android/app/src/main/res/values/admob.xml <<'EOF'
@@ -53,55 +82,54 @@ jobs:
           p = Path("android/app/src/main/AndroidManifest.xml")
           s = p.read_text()
 
-          meta = '<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/admob_app_id" />'
+          meta = """        <meta-data
+              android:name="com.google.android.gms.ads.APPLICATION_ID"
+              android:value="@string/admob_app_id" />"""
 
           if "com.google.android.gms.ads.APPLICATION_ID" not in s:
               s = s.replace(
                   "</application>",
-                  "        " + meta + "\n    </application>"
+                  meta + "\n    </application>",
+                  1
               )
 
           p.write_text(s)
           PY
 
-      - name: Copy web files and sync AdMob
+      - name: Sync Capacitor
+        shell: bash
         run: |
+          set -e
           cd app
-          npx cap copy android
           npx cap sync android
 
-      - name: Fix Kotlin dependency conflict
+      - name: Check Android project
+        shell: bash
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
+          set -e
 
-          p = Path("app/android/build.gradle")
-          s = p.read_text()
+          test -f app/android/gradlew
+          test -f app/android/settings.gradle
+          test -f app/android/app/build.gradle
 
-          block = """
-          subprojects {
-              configurations.configureEach {
-                  exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
-                  exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
-              }
-          }
-          """
-
-          if "kotlin-stdlib-jdk7" not in s:
-              s += block
-
-          p.write_text(s)
-          PY
+          echo "Android project OK"
 
       - name: Build APK
+        shell: bash
         run: |
+          set -e
+
           cd app/android
+
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace --no-daemon
+
+          ./gradlew assembleDebug \
+            --stacktrace \
+            --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: html-app-admob-debug-apk
+          name: HTML-App-Builder-APK
           path: app/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
