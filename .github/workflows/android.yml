@@ -58,14 +58,14 @@ jobs:
           cd app
           npx cap sync android
 
-      - name: Check Android project
+            - name: Check Android project
         shell: bash
         run: |
           set -e
 
-          test -f android/gradlew
-          test -f android/settings.gradle
-          test -f android/app/build.gradle
+          test -f app/android/gradlew
+          test -f app/android/settings.gradle
+          test -f app/android/app/build.gradle
 
           echo "Android project OK"
 
