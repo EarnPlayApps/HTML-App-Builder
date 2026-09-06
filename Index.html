@@ -3117,53 +3117,156 @@ updateAdStatus();
 </script>
 
 
+
 <script>
 /* =========================================
-   REAL LOCAL APK ANALYZER
-   No API / backend / service required
+   LOCAL APK/ZIP ANALYZER — WIRED FALLBACK
+   No backend/service required
 ========================================= */
-window.analyzeApkLocally = async function(file){
-  const result = {
-    file:file,
-    valid:false,
-    entries:[],
-    html:[],
-    css:[],
-    js:[],
-    dex:[],
-    native:[],
-    manifest:false,
-    message:""
-  };
+(function () {
+  if (window.__localApkAnalyzerInstalled) return;
+  window.__localApkAnalyzerInstalled = true;
 
-  try{
-    const es = await window.LocalZipReader.entries(file);
-    result.entries = es;
-    result.html = es.filter(e=>/\.(html?|xhtml)$/i.test(e.name));
-    result.css = es.filter(e=>/\.css$/i.test(e.name));
-    result.js = es.filter(e=>/\.m?js$/i.test(e.name));
-    result.dex = es.filter(e=>/^classes\d*\.dex$/i.test(e.name));
-    result.native = es.filter(e=>/^lib\/.+\.so$/i.test(e.name));
-    result.manifest = es.some(e=>e.name==="AndroidManifest.xml");
-    result.valid = true;
+  const U16 = (a,o) => a[o] | (a[o+1] << 8);
+  const U32 = (a,o) => (a[o] | (a[o+1] << 8) |
+                        (a[o+2] << 16) | (a[o+3] << 24)) >>> 0;
 
-    if(result.html.length){
-      result.message =
-        "Kandungan web dikesan. HTML boleh cuba diekstrak secara tempatan.";
-    }else if(result.dex.length || result.native.length){
-      result.message =
-        "APK sah tetapi kandungan HTML tidak dikesan. APK native tidak boleh ditukar 100% kepada HTML.";
-    }else{
-      result.message =
-        "APK sah tetapi kandungan web yang boleh diedit tidak ditemui.";
-    }
-  }catch(err){
-    result.message =
-      "APK tidak dapat dibaca secara tempatan: " + (err.message || "format tidak disokong");
+  async function readBytes(file, start, length) {
+    return new Uint8Array(
+      await file.slice(start, start + length).arrayBuffer()
+    );
   }
 
-  return result;
-};
+  async function listZip(file) {
+    const tailLen = Math.min(file.size, 65557);
+    const tail = await readBytes(file, file.size - tailLen, tailLen);
+    let eocd = -1;
+
+    for (let i = tail.length - 22; i >= 0; i--) {
+      if (U32(tail, i) === 0x06054b50) {
+        eocd = i;
+        break;
+      }
+    }
+    if (eocd < 0) throw new Error("APK/ZIP tidak sah.");
+
+    const total = U16(tail, eocd + 10);
+    const cdSize = U32(tail, eocd + 12);
+    const cdOffset = U32(tail, eocd + 16);
+    const cd = await readBytes(file, cdOffset, cdSize);
+
+    const out = [];
+    let p = 0;
+
+    for (let i = 0; i < total && p + 46 <= cd.length; i++) {
+      if (U32(cd, p) !== 0x02014b50)
+        throw new Error("Struktur ZIP tidak disokong.");
+
+      const method = U16(cd, p + 10);
+      const compressedSize = U32(cd, p + 20);
+      const uncompressedSize = U32(cd, p + 24);
+      const nameLen = U16(cd, p + 28);
+      const extraLen = U16(cd, p + 30);
+      const commentLen = U16(cd, p + 32);
+      const localOffset = U32(cd, p + 42);
+
+      const name = new TextDecoder("utf-8", {fatal:false})
+        .decode(cd.slice(p + 46, p + 46 + nameLen));
+
+      out.push({
+        name, method, compressedSize,
+        uncompressedSize, localOffset
+      });
+
+      p += 46 + nameLen + extraLen + commentLen;
+    }
+    return out;
+  }
+
+  async function readEntry(file, e) {
+    const h = await readBytes(file, e.localOffset, 30);
+    if (U32(h, 0) !== 0x04034b50)
+      throw new Error("ZIP local header tidak sah.");
+
+    const nameLen = U16(h, 26);
+    const extraLen = U16(h, 28);
+    const start = e.localOffset + 30 + nameLen + extraLen;
+    const data = await readBytes(file, start, e.compressedSize);
+
+    if (e.method === 0) return data;
+
+    if (e.method === 8) {
+      if (typeof DecompressionStream === "undefined")
+        throw new Error("Browser ini tidak menyokong ZIP deflate.");
+
+      const stream = new Blob([data]).stream()
+        .pipeThrough(new DecompressionStream("deflate-raw"));
+
+      return new Uint8Array(
+        await new Response(stream).arrayBuffer()
+      );
+    }
+
+    throw new Error("Compression APK tidak disokong.");
+  }
+
+  window.LocalAPK = {
+    list: listZip,
+    read: readEntry
+  };
+
+  /*
+   * Hook common file-input/analyzer controls if present.
+   * This supplements, rather than replaces, the original UI.
+   */
+  function wire() {
+    const input =
+      document.querySelector('#apkInput,[accept*=".apk"]');
+
+    if (!input || input.__localWired) return;
+    input.__localWired = true;
+
+    input.addEventListener("change", async function () {
+      const file = this.files && this.files[0];
+      if (!file || !/\.apk$/i.test(file.name)) return;
+
+      try {
+        const entries = await listZip(file);
+        const names = entries.map(e => e.name);
+
+        window.localApkLastAnalysis = {
+          file,
+          entries,
+          html: entries.filter(e => /\.(html?|xhtml)$/i.test(e.name)),
+          css: entries.filter(e => /\.css$/i.test(e.name)),
+          js: entries.filter(e => /\.m?js$/i.test(e.name)),
+          dex: entries.filter(e => /^classes\d*\.dex$/i.test(e.name)),
+          native: entries.filter(e => /^lib\/.+\.so$/i.test(e.name)),
+          manifest: names.includes("AndroidManifest.xml")
+        };
+      } catch (err) {
+        window.localApkLastAnalysis = {
+          file,
+          entries: [],
+          html: [],
+          css: [],
+          js: [],
+          dex: [],
+          native: [],
+          manifest: false,
+          error: err.message
+        };
+      }
+    }, true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", wire);
+  } else {
+    wire();
+  }
+})();
 </script>
+
 </body>
 </html>
