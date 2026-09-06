@@ -17,23 +17,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-        distribution: temurin
           node-version: 20
-          
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
 
       - name: Create Capacitor project
         run: |
           mkdir -p app/www
           cp index.html app/www/index.html
-
           cd app
-
           npm init -y
-
           npm install @capacitor/core @capacitor/cli @capacitor/android
-
           npx cap init "HTML App" "com.htmlapp.builder" --web-dir www
-
           npx cap add android
 
       - name: Copy web files
