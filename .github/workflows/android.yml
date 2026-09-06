@@ -31,23 +31,54 @@ jobs:
           cp index.html app/www/index.html
           cd app
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor-community/admob@8
           npx cap init "HTML App" "com.htmlapp.builder" --web-dir www
           npx cap add android
 
-      - name: Copy web files
+      - name: Configure AdMob
+        run: |
+          cd app
+          mkdir -p android/app/src/main/res/values
+
+          cat > android/app/src/main/res/values/admob.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="admob_app_id">ca-app-pub-9940728659432865~9994566162</string>
+          </resources>
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          s = p.read_text()
+
+          meta = '<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/admob_app_id" />'
+
+          if "com.google.android.gms.ads.APPLICATION_ID" not in s:
+              s = s.replace(
+                  "</application>",
+                  "        " + meta + "\n    </application>"
+              )
+
+          p.write_text(s)
+          PY
+
+      - name: Copy web files and sync AdMob
         run: |
           cd app
           npx cap copy android
+          npx cap sync android
 
       - name: Fix Kotlin dependency conflict
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
           p = Path("app/android/build.gradle")
           s = p.read_text()
-          s += """
-          
+
+          block = """
           subprojects {
               configurations.configureEach {
                   exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
@@ -55,6 +86,10 @@ jobs:
               }
           }
           """
+
+          if "kotlin-stdlib-jdk7" not in s:
+              s += block
+
           p.write_text(s)
           PY
 
@@ -62,11 +97,11 @@ jobs:
         run: |
           cd app/android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: html-app-debug-apk
+          name: html-app-admob-debug-apk
           path: app/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
