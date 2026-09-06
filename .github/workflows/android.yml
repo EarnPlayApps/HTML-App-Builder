@@ -58,7 +58,7 @@ jobs:
           cd app
           npx cap sync android
 
-            - name: Check Android project
+      - name: Check Android project
         shell: bash
         run: |
           set -e
