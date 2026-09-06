@@ -1,1 +1,2419 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="HTML App Builder - bina, preview dan bungkus HTML dengan mudah">
+<title>HTML App Builder</title>
 
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#172033;
+  background:#f5f7fb;
+}
+
+button,
+textarea,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  width:100%;
+  max-width:1250px;
+  margin:auto;
+  padding:18px;
+}
+
+/* HEADER */
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:50px;
+  height:50px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#5b7cff,#7b61ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:25px;
+  font-weight:900;
+  box-shadow:0 10px 25px rgba(91,124,255,.25);
+}
+
+.brand-name{
+  font-size:21px;
+  font-weight:900;
+}
+
+.brand-sub{
+  margin-top:3px;
+  color:#7d8799;
+  font-size:11px;
+}
+
+.badge{
+  padding:9px 13px;
+  border-radius:30px;
+  background:#eef3ff;
+  color:#526bd7;
+  border:1px solid #dce5ff;
+  font-size:11px;
+  font-weight:800;
+}
+
+/* HERO */
+
+.hero{
+  background:white;
+  border:1px solid #e3e8f1;
+  border-radius:25px;
+  padding:25px;
+  box-shadow:0 12px 40px rgba(30,45,80,.07);
+  margin-bottom:18px;
+}
+
+.hero h1{
+  margin:0;
+  font-size:30px;
+}
+
+.hero p{
+  margin:9px 0 0;
+  color:#738096;
+  line-height:1.6;
+  font-size:14px;
+}
+
+.hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:20px;
+}
+
+.primary{
+  border:0;
+  background:linear-gradient(135deg,#5b7cff,#765cff);
+  color:white;
+  padding:13px 18px;
+  border-radius:13px;
+  font-weight:900;
+  box-shadow:0 8px 20px rgba(91,124,255,.22);
+}
+
+.secondary{
+  border:1px solid #dce2ec;
+  background:white;
+  color:#33405a;
+  padding:13px 18px;
+  border-radius:13px;
+  font-weight:800;
+}
+
+.secondary:hover{
+  background:#f7f9fc;
+}
+
+/* IMPORT */
+
+.import-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.card{
+  background:white;
+  border:1px solid #e3e8f1;
+  border-radius:20px;
+  padding:18px;
+  box-shadow:0 10px 30px rgba(30,45,80,.05);
+}
+
+.card-title{
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+
+.card-sub{
+  color:#7b879b;
+  font-size:11px;
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+.dropzone{
+  min-height:130px;
+  border:2px dashed #cbd4e4;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  padding:15px;
+  background:#fafbfe;
+  transition:.2s;
+}
+
+.dropzone.drag{
+  border-color:#647cff;
+  background:#f1f4ff;
+}
+
+.drop-icon{
+  font-size:30px;
+  margin-bottom:7px;
+}
+
+.drop-title{
+  font-size:13px;
+  font-weight:900;
+}
+
+.drop-text{
+  color:#8994a8;
+  font-size:10px;
+  margin-top:4px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* EDITOR */
+
+.workspace{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.panel{
+  background:white;
+  border:1px solid #e3e8f1;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(30,45,80,.05);
+}
+
+.panel-head{
+  min-height:57px;
+  padding:12px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid #e7ebf2;
+}
+
+.panel-title{
+  font-weight:900;
+  font-size:14px;
+}
+
+.panel-label{
+  color:#8a94a7;
+  font-size:10px;
+  margin-top:3px;
+}
+
+.panel-tools{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.small-btn{
+  border:1px solid #dce2ec;
+  background:white;
+  color:#42506a;
+  padding:7px 10px;
+  border-radius:9px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.small-btn:hover{
+  background:#f5f7fb;
+}
+
+#editor{
+  display:block;
+  width:100%;
+  min-height:500px;
+  resize:vertical;
+  border:0;
+  outline:0;
+  padding:18px;
+  background:#fbfcff;
+  color:#202a3d;
+  font-family:Consolas,Monaco,"Courier New",monospace;
+  font-size:12px;
+  line-height:1.65;
+  tab-size:2;
+}
+
+/* PREVIEW */
+
+.preview-wrap{
+  background:#e9edf4;
+  padding:15px;
+  min-height:535px;
+}
+
+.device-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding-bottom:12px;
+}
+
+.device-btn{
+  border:1px solid #d5dce8;
+  background:white;
+  color:#66738a;
+  padding:7px 11px;
+  border-radius:9px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.device-btn.active{
+  background:#5b7cff;
+  color:white;
+  border-color:#5b7cff;
+}
+
+.preview-frame{
+  width:100%;
+  height:480px;
+  background:white;
+  border:1px solid #d4dbe7;
+  border-radius:15px;
+  overflow:hidden;
+  margin:auto;
+  box-shadow:0 10px 30px rgba(40,50,80,.08);
+  transition:.25s;
+}
+
+.preview-frame.mobile{
+  max-width:390px;
+}
+
+.preview-frame.tablet{
+  max-width:760px;
+}
+
+.preview-frame.desktop{
+  max-width:100%;
+}
+
+#preview{
+  width:100%;
+  height:100%;
+  border:0;
+  background:white;
+}
+
+/* FILES */
+
+.files-card{
+  background:white;
+  border:1px solid #e3e8f1;
+  border-radius:20px;
+  padding:18px;
+  box-shadow:0 10px 30px rgba(30,45,80,.05);
+  margin-bottom:18px;
+}
+
+.files-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.files-title{
+  font-weight:900;
+  font-size:15px;
+}
+
+.files-count{
+  color:#8290a6;
+  font-size:10px;
+}
+
+.file-list{
+  border:1px solid #e4e8ef;
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.file-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 13px;
+  border-bottom:1px solid #edf0f5;
+}
+
+.file-row:last-child{
+  border-bottom:0;
+}
+
+.file-icon{
+  width:32px;
+  height:32px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f0f3fa;
+  font-size:15px;
+}
+
+.file-info{
+  flex:1;
+  min-width:0;
+}
+
+.file-name{
+  font-size:11px;
+  font-weight:800;
+  word-break:break-all;
+}
+
+.file-size{
+  color:#8b96a9;
+  font-size:9px;
+  margin-top:2px;
+}
+
+.file-actions{
+  display:flex;
+  gap:5px;
+}
+
+.empty{
+  text-align:center;
+  color:#8b96a9;
+  padding:25px;
+  font-size:11px;
+}
+
+/* BOTTOM ACTIONS */
+
+.actions{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+
+.action-btn{
+  min-height:50px;
+  border:1px solid #dce2ec;
+  background:white;
+  color:#34415a;
+  border-radius:13px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.action-btn.primary-action{
+  border:0;
+  background:linear-gradient(135deg,#5b7cff,#765cff);
+  color:white;
+}
+
+/* STATUS */
+
+.status{
+  min-height:22px;
+  text-align:center;
+  color:#7f8b9f;
+  font-size:11px;
+  margin:8px 0 20px;
+}
+
+.status.ok{
+  color:#169765;
+}
+
+.status.error{
+  color:#d9485f;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  z-index:99999;
+  left:50%;
+  bottom:20px;
+  transform:translate(-50%,25px);
+  width:calc(100% - 30px);
+  max-width:430px;
+  padding:13px 15px;
+  border:1px solid #dce2ec;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 18px 50px rgba(30,40,70,.2);
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+.toast-title{
+  font-size:12px;
+  font-weight:900;
+}
+
+.toast-text{
+  color:#778399;
+  font-size:10px;
+  margin-top:3px;
+}
+
+/* FOOTER */
+
+.footer{
+  text-align:center;
+  color:#9aa4b5;
+  font-size:10px;
+  padding:8px 0 20px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:850px){
+
+  .workspace{
+    grid-template-columns:1fr;
+  }
+
+  .import-grid{
+    grid-template-columns:1fr;
+  }
+
+  .actions{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+
+@media(max-width:600px){
+
+  .app{
+    padding:10px;
+  }
+
+  .header{
+    margin-bottom:12px;
+  }
+
+  .badge{
+    display:none;
+  }
+
+  .hero{
+    padding:19px;
+    border-radius:20px;
+  }
+
+  .hero h1{
+    font-size:24px;
+  }
+
+  .panel,
+  .card,
+  .files-card{
+    border-radius:17px;
+  }
+
+  #editor{
+    min-height:380px;
+  }
+
+  .preview-wrap{
+    padding:10px;
+  }
+
+  .preview-frame{
+    height:430px;
+  }
+
+  .file-row{
+    align-items:flex-start;
+  }
+
+  .file-actions{
+    flex-direction:column;
+  }
+
+}
+
+/* PRINT */
+
+@media print{
+
+  .header,
+  .hero,
+  .import-grid,
+  .files-card,
+  .actions,
+  .status,
+  .footer{
+    display:none!important;
+  }
+
+  .workspace{
+    display:block;
+  }
+
+  .panel:first-child{
+    display:none;
+  }
+
+  .panel{
+    border:0;
+    box-shadow:none;
+  }
+
+  .preview-wrap{
+    background:white;
+  }
+
+  .preview-frame{
+    height:100vh;
+    border:0;
+    box-shadow:none;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+
+  <div class="brand">
+
+    <div class="logo">
+      &lt;/&gt;
+    </div>
+
+    <div>
+      <div class="brand-name">
+        HTML App Builder
+      </div>
+
+      <div class="brand-sub">
+        Build • Preview • Package
+      </div>
+    </div>
+
+  </div>
+
+  <div class="badge">
+    ● V1 READY
+  </div>
+
+</header>
+
+
+<section class="hero">
+
+  <h1>
+    Bina HTML jadi Web / App dengan lebih mudah
+  </h1>
+
+  <p>
+    Paste kod HTML, buka fail HTML atau import ZIP.
+    Edit kod, lihat live preview dan bungkus projek anda.
+  </p>
+
+  <div class="hero-actions">
+
+    <button
+      class="primary"
+      id="newBtn">
+      ＋ Projek Baru
+    </button>
+
+    <button
+      class="secondary"
+      id="pasteBtn">
+      📋 Paste HTML
+    </button>
+
+    <button
+      class="secondary"
+      id="htmlBtn">
+      📄 Buka HTML
+    </button>
+
+    <button
+      class="secondary"
+      id="zipBtn">
+      📦 Import ZIP
+    </button>
+
+  </div>
+
+</section>
+
+
+<section class="import-grid">
+
+  <div class="card">
+
+    <div class="card-title">
+      📄 Buka HTML
+    </div>
+
+    <div class="card-sub">
+      Ambil fail .html terus dari peranti dan edit di sini.
+    </div>
+
+    <div
+      class="dropzone"
+      id="htmlDrop">
+
+      <div class="drop-icon">
+        📄
+      </div>
+
+      <div class="drop-title">
+        Tap untuk pilih HTML
+      </div>
+
+      <div class="drop-text">
+        Sokongan .html / .htm
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="card-title">
+      📦 Import ZIP
+    </div>
+
+    <div class="card-sub">
+      Extract ZIP dan sistem akan cuba cari index.html secara automatik.
+    </div>
+
+    <div
+      class="dropzone"
+      id="zipDrop">
+
+      <div class="drop-icon">
+        🗂️
+      </div>
+
+      <div class="drop-title">
+        Tap untuk pilih ZIP
+      </div>
+
+      <div class="drop-text">
+        Semua fail projek akan disenaraikan
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<input
+  type="file"
+  id="htmlInput"
+  class="hidden"
+  accept=".html,.htm,text/html">
+
+
+<input
+  type="file"
+  id="zipInput"
+  class="hidden"
+  accept=".zip,application/zip">
+
+
+<section class="workspace">
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          ✏️ HTML Editor
+        </div>
+
+        <div class="panel-label">
+          Kod akan dipreview secara live
+        </div>
+
+      </div>
+
+      <div class="panel-tools">
+
+        <button
+          class="small-btn"
+          id="formatBtn">
+          Format
+        </button>
+
+        <button
+          class="small-btn"
+          id="clearBtn">
+          Clear
+        </button>
+
+      </div>
+
+    </div>
+
+    <textarea
+      id="editor"
+      spellcheck="false"
+      placeholder="<!DOCTYPE html>
+<html>
+<head>
+  <title>My App</title>
+</head>
+<body>
+
+  <h1>Hello World</h1>
+
+</body>
+</html>"></textarea>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          👁 Live Preview
+        </div>
+
+        <div class="panel-label">
+          Preview responsive
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="preview-wrap">
+
+      <div class="device-bar">
+
+        <button
+          class="device-btn active"
+          data-device="desktop">
+          🖥 Desktop
+        </button>
+
+        <button
+          class="device-btn"
+          data-device="tablet">
+          ▣ Tablet
+        </button>
+
+        <button
+          class="device-btn"
+          data-device="mobile">
+          📱 Mobile
+        </button>
+
+      </div>
+
+      <div
+        class="preview-frame desktop"
+        id="previewFrame">
+
+        <iframe
+          id="preview"
+          title="HTML Live Preview"
+          sandbox="allow-scripts allow-forms allow-modals allow-popups"
+          srcdoc="">
+        </iframe>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="files-card">
+
+  <div class="files-head">
+
+    <div>
+
+      <div class="files-title">
+        🗂 Project Files
+      </div>
+
+      <div
+        class="files-count"
+        id="filesCount">
+        0 fail
+      </div>
+
+    </div>
+
+    <div class="panel-tools">
+
+      <button
+        class="small-btn"
+        id="downloadAllBtn">
+        ⬇ Semua
+      </button>
+
+      <button
+        class="small-btn"
+        id="extractDownloadBtn">
+        📦 ZIP
+      </button>
+
+    </div>
+
+  </div>
+
+  <div
+    class="file-list"
+    id="fileList">
+
+    <div class="empty">
+      Tiada fail projek lagi.
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="actions">
+
+  <button
+    class="action-btn"
+    id="downloadHtmlBtn">
+    ⬇ Download HTML
+  </button>
+
+  <button
+    class="action-btn"
+    id="downloadProjectBtn">
+    📦 Download Project
+  </button>
+
+  <button
+    class="action-btn"
+    id="resetBtn">
+    ↻ Reset
+  </button>
+
+  <button
+    class="action-btn primary-action"
+    id="packageBtn">
+    🚀 Bungkus Projek
+  </button>
+
+</section>
+
+
+<div
+  class="status"
+  id="status">
+  Sedia. Masukkan HTML untuk bermula.
+</div>
+
+
+<div class="footer">
+  HTML App Builder • V1
+</div>
+
+</div>
+
+
+<div
+  class="toast"
+  id="toast">
+
+  <div
+    class="toast-title"
+    id="toastTitle">
+    Berjaya
+  </div>
+
+  <div
+    class="toast-text"
+    id="toastText">
+  </div>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================
+   STATE
+========================= */
+
+let projectFiles = [];
+let toastTimer = null;
+let previewTimer = null;
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const $ = id =>
+  document.getElementById(id);
+
+const editor =
+  $("editor");
+
+const preview =
+  $("preview");
+
+const previewFrame =
+  $("previewFrame");
+
+const status =
+  $("status");
+
+
+/* =========================
+   TOAST
+========================= */
+
+function toast(title,text){
+
+  clearTimeout(toastTimer);
+
+  $("toastTitle").textContent =
+    title;
+
+  $("toastText").textContent =
+    text;
+
+  $("toast").classList.add("show");
+
+  toastTimer =
+    setTimeout(()=>{
+      $("toast").classList.remove("show");
+    },3200);
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+function setStatus(text,type=""){
+
+  status.className =
+    "status " + type;
+
+  status.textContent =
+    text;
+}
+
+
+/* =========================
+   SIZE
+========================= */
+
+function formatSize(bytes){
+
+  if(bytes < 1024){
+    return bytes + " B";
+  }
+
+  if(bytes < 1024*1024){
+    return (bytes/1024).toFixed(1)+" KB";
+  }
+
+  return (
+    bytes/
+    1024/
+    1024
+  ).toFixed(2)+" MB";
+}
+
+
+/* =========================
+   ESCAPE
+========================= */
+
+function escapeHtml(value){
+
+  return String(value).replace(
+    /[&<>"']/g,
+    char=>({
+
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+
+    }[char])
+  );
+}
+
+
+/* =========================
+   DEFAULT HTML
+========================= */
+
+function defaultHTML(){
+
+  return `<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>My HTML App</title>
+
+<style>
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Arial,sans-serif;
+  background:#f5f7fb;
+  color:#172033;
+}
+
+.card{
+  width:min(90%,500px);
+  padding:30px;
+  background:white;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,.08);
+  text-align:center;
+}
+
+button{
+  border:0;
+  padding:12px 18px;
+  border-radius:10px;
+  background:#5b7cff;
+  color:white;
+  font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Hello 👋</h1>
+
+<p>
+Ini ialah HTML App anda.
+</p>
+
+<button onclick="alert('Berfungsi!')">
+Test App
+</button>
+
+</div>
+
+</body>
+
+</html>`;
+
+}
+
+
+/* =========================
+   LIVE PREVIEW
+========================= */
+
+function updatePreview(){
+
+  clearTimeout(previewTimer);
+
+  previewTimer =
+    setTimeout(()=>{
+
+      try{
+
+        preview.srcdoc =
+          editor.value;
+
+        setStatus(
+          "Live Preview dikemaskini. ✓",
+          "ok"
+        );
+
+      }catch(error){
+
+        setStatus(
+          "Preview gagal dikemaskini.",
+          "error"
+        );
+
+      }
+
+    },180);
+}
+
+
+/* =========================
+   PROJECT FILES
+========================= */
+
+function addProjectFile(
+  name,
+  blob
+){
+
+  const existing =
+    projectFiles.find(
+      file=>file.name===name
+    );
+
+  if(existing){
+
+    existing.blob =
+      blob;
+
+  }else{
+
+    projectFiles.push({
+      name,
+      blob
+    });
+
+  }
+
+  renderFiles();
+}
+
+
+/* =========================
+   RENDER FILES
+========================= */
+
+function renderFiles(){
+
+  const list =
+    $("fileList");
+
+  $("filesCount").textContent =
+    projectFiles.length +
+    (
+      projectFiles.length===1
+      ?" fail"
+      :" fail"
+    );
+
+  if(!projectFiles.length){
+
+    list.innerHTML =
+      `<div class="empty">
+        Tiada fail projek lagi.
+      </div>`;
+
+    return;
+  }
+
+  list.innerHTML="";
+
+  projectFiles.forEach(
+    (file,index)=>{
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "file-row";
+
+      const icon =
+        document.createElement("div");
+
+      icon.className =
+        "file-icon";
+
+      icon.textContent =
+        getFileIcon(file.name);
+
+      const info =
+        document.createElement("div");
+
+      info.className =
+        "file-info";
+
+      const name =
+        document.createElement("div");
+
+      name.className =
+        "file-name";
+
+      name.textContent =
+        file.name;
+
+      const size =
+        document.createElement("div");
+
+      size.className =
+        "file-size";
+
+      size.textContent =
+        formatSize(
+          file.blob.size
+        );
+
+      info.append(
+        name,
+        size
+      );
+
+      const actions =
+        document.createElement("div");
+
+      actions.className =
+        "file-actions";
+
+      const download =
+        document.createElement("button");
+
+      download.className =
+        "small-btn";
+
+      download.textContent =
+        "⬇";
+
+      download.title =
+        "Download";
+
+      download.onclick =
+        ()=>{
+          downloadBlob(
+            file.blob,
+            getFileName(file.name)
+          );
+        };
+
+      const remove =
+        document.createElement("button");
+
+      remove.className =
+        "small-btn";
+
+      remove.textContent =
+        "×";
+
+      remove.title =
+        "Buang";
+
+      remove.onclick =
+        ()=>{
+
+          projectFiles.splice(
+            index,
+            1
+          );
+
+          renderFiles();
+
+          toast(
+            "Fail dibuang",
+            file.name
+          );
+
+        };
+
+      actions.append(
+        download,
+        remove
+      );
+
+      row.append(
+        icon,
+        info,
+        actions
+      );
+
+      list.appendChild(row);
+
+    }
+  );
+
+}
+
+
+/* =========================
+   FILE ICON
+========================= */
+
+function getFileIcon(name){
+
+  const lower =
+    name.toLowerCase();
+
+  if(
+    lower.endsWith(".html")||
+    lower.endsWith(".htm")
+  ){
+    return "🌐";
+  }
+
+  if(
+    lower.endsWith(".css")
+  ){
+    return "🎨";
+  }
+
+  if(
+    lower.endsWith(".js")
+  ){
+    return "⚙️";
+  }
+
+  if(
+    /\.(png|jpg|jpeg|gif|webp|svg)$/i
+      .test(lower)
+  ){
+    return "🖼️";
+  }
+
+  if(
+    lower.endsWith(".json")
+  ){
+    return "🔧";
+  }
+
+  return "📄";
+}
+
+
+/* =========================
+   FILE NAME
+========================= */
+
+function getFileName(path){
+
+  return String(path)
+    .replace(/\\/g,"/")
+    .split("/")
+    .pop() ||
+    "file";
+}
+
+
+/* =========================
+   DOWNLOAD
+========================= */
+
+function downloadBlob(
+  blob,
+  name
+){
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+  const a =
+    document.createElement("a");
+
+  a.href = url;
+
+  a.download =
+    name;
+
+  a.style.display =
+    "none";
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  setTimeout(()=>{
+    URL.revokeObjectURL(url);
+  },10000);
+
+}
+
+
+/* =========================
+   DOWNLOAD HTML
+========================= */
+
+function downloadHTML(){
+
+  const text =
+    editor.value.trim();
+
+  if(!text){
+
+    toast(
+      "⚠ HTML kosong",
+      "Masukkan kod HTML dahulu."
+    );
+
+    return;
+  }
+
+  const blob =
+    new Blob(
+      [text],
+      {
+        type:"text/html;charset=utf-8"
+      }
+    );
+
+  downloadBlob(
+    blob,
+    "index.html"
+  );
+
+  toast(
+    "✅ HTML siap",
+    "index.html telah dimuat turun."
+  );
+
+}
+
+
+/* =========================
+   ZIP PROJECT
+========================= */
+
+async function downloadProject(){
+
+  if(
+    !editor.value.trim() &&
+    !projectFiles.length
+  ){
+
+    toast(
+      "⚠ Projek kosong",
+      "Masukkan HTML atau import ZIP dahulu."
+    );
+
+    return;
+  }
+
+  try{
+
+    const zip =
+      new JSZip();
+
+    /*
+      Pastikan index.html
+      menggunakan kod editor semasa.
+    */
+
+    zip.file(
+      "index.html",
+      editor.value
+    );
+
+    projectFiles.forEach(
+      file=>{
+
+        if(
+          file.name.toLowerCase() !==
+          "index.html"
+        ){
+
+          zip.file(
+            file.name,
+            file.blob
+          );
+
+        }
+
+      }
+    );
+
+    const blob =
+      await zip.generateAsync({
+        type:"blob",
+        compression:"DEFLATE"
+      });
+
+    downloadBlob(
+      blob,
+      "html-app-project.zip"
+    );
+
+    toast(
+      "📦 Project siap",
+      "Semua fail dibungkus dalam ZIP."
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "❌ Gagal",
+      "Project tidak dapat dibungkus."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   FORMAT SIMPLE
+========================= */
+
+function formatHTML(){
+
+  const text =
+    editor.value;
+
+  if(!text.trim()){
+
+    return;
+
+  }
+
+  /*
+    Formatter ringan.
+    Tidak mengubah kandungan script/style.
+  */
+
+  let formatted =
+    text
+      .replace(/>\s*</g,">\n<")
+      .replace(/^\s+|\s+$/g,"");
+
+  const lines =
+    formatted.split("\n");
+
+  let indent=0;
+
+  const output=[];
+
+  lines.forEach(
+    line=>{
+
+      const clean =
+        line.trim();
+
+      if(!clean){
+        return;
+      }
+
+      if(
+        /^<\/[^>]+>/.test(clean)
+      ){
+
+        indent =
+          Math.max(
+            0,
+            indent-1
+          );
+
+      }
+
+      output.push(
+        "  ".repeat(indent)+
+        clean
+      );
+
+      if(
+        /^<([a-zA-Z][^\\s/>]*)(?:\\s[^>]*)?>$/
+          .test(clean) &&
+        !/<\/[^>]+>$/.test(clean) &&
+        !/^<(meta|link|img|input|br|hr|source|area|base|embed|param|track|wbr)\b/i
+          .test(clean)
+      ){
+
+        indent++;
+
+      }
+
+    }
+  );
+
+  editor.value =
+    output.join("\n");
+
+  updatePreview();
+
+  toast(
+    "✓ Format siap",
+    "Kod HTML telah dirapikan."
+  );
+
+}
+
+
+/* =========================
+   HTML FILE
+========================= */
+
+async function loadHTMLFile(file){
+
+  if(!file){
+    return;
+  }
+
+  try{
+
+    const text =
+      await file.text();
+
+    editor.value =
+      text;
+
+    projectFiles=[];
+
+    addProjectFile(
+      "index.html",
+      new Blob(
+        [text],
+        {
+          type:"text/html"
+        }
+      )
+    );
+
+    updatePreview();
+
+    setStatus(
+      "HTML berjaya dibuka. ✓",
+      "ok"
+    );
+
+    toast(
+      "📄 HTML dibuka",
+      file.name
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus(
+      "HTML tidak dapat dibaca.",
+      "error"
+    );
+
+    toast(
+      "❌ Gagal",
+      "Fail HTML tidak dapat dibaca."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   ZIP IMPORT
+========================= */
+
+async function loadZIP(file){
+
+  if(!file){
+    return;
+  }
+
+  if(
+    typeof JSZip==="undefined"
+  ){
+
+    toast(
+      "❌ ZIP tidak tersedia",
+      "Library ZIP gagal dimuat."
+    );
+
+    return;
+  }
+
+  try{
+
+    setStatus(
+      "Membaca ZIP…"
+    );
+
+    const zip =
+      await JSZip.loadAsync(
+        file
+      );
+
+    const entries =
+      Object.values(
+        zip.files
+      ).filter(
+        entry=>!entry.dir
+      );
+
+    if(
+      entries.length>500
+    ){
+
+      throw new Error(
+        "ZIP mempunyai terlalu banyak fail. Had ialah 500."
+      );
+
+    }
+
+    projectFiles=[];
+
+    let htmlEntry=null;
+
+    /*
+      Cari index.html dahulu.
+    */
+
+    htmlEntry =
+      entries.find(
+        entry=>
+          getFileName(entry.name)
+            .toLowerCase()
+          ==="index.html"
+      );
+
+    /*
+      Jika tiada index.html,
+      cari mana-mana HTML.
+    */
+
+    if(!htmlEntry){
+
+      htmlEntry =
+        entries.find(
+          entry=>
+            /\.(html|htm)$/i
+              .test(entry.name)
+        );
+
+    }
+
+    for(
+      const entry of entries
+    ){
+
+      const safePath =
+        entry.name
+          .replace(/\\/g,"/")
+          .replace(/^\/+/,"");
+
+      if(
+        safePath
+          .split("/")
+          .includes("..")
+      ){
+
+        continue;
+
+      }
+
+      const blob =
+        await entry.async(
+          "blob"
+        );
+
+      projectFiles.push({
+
+        name:safePath,
+
+        blob
+
+      });
+
+    }
+
+    renderFiles();
+
+    if(htmlEntry){
+
+      const htmlText =
+        await htmlEntry.async(
+          "text"
+        );
+
+      editor.value =
+        htmlText;
+
+      /*
+        Pastikan nama index.html
+        ada pada root untuk preview.
+      */
+
+      updatePreview();
+
+      setStatus(
+        "ZIP berjaya diimport. index.html dikesan. ✓",
+        "ok"
+      );
+
+      toast(
+        "📦 ZIP berjaya",
+        entries.length+
+        " fail dikesan."
+      );
+
+    }else{
+
+      editor.value =
+        defaultHTML();
+
+      updatePreview();
+
+      setStatus(
+        "ZIP diimport tetapi tiada HTML dikesan.",
+        "error"
+      );
+
+      toast(
+        "⚠ HTML tidak dijumpai",
+        "Fail ZIP berjaya diextract tetapi tiada HTML."
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus(
+      error.message ||
+      "ZIP gagal dibaca.",
+      "error"
+    );
+
+    toast(
+      "❌ ZIP gagal",
+      error.message ||
+      "Fail ZIP tidak dapat dibaca."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   ZIP DROP
+========================= */
+
+function setupDropzone(
+  zone,
+  input,
+  type
+){
+
+  zone.addEventListener(
+    "click",
+    ()=>{
+      input.click();
+    }
+  );
+
+  [
+    "dragenter",
+    "dragover"
+  ].forEach(
+    eventName=>{
+
+      zone.addEventListener(
+        eventName,
+        event=>{
+
+          event.preventDefault();
+          event.stopPropagation();
+
+          zone.classList.add(
+            "drag"
+          );
+
+        }
+      );
+
+    }
+  );
+
+  [
+    "dragleave",
+    "drop"
+  ].forEach(
+    eventName=>{
+
+      zone.addEventListener(
+        eventName,
+        event=>{
+
+          event.preventDefault();
+          event.stopPropagation();
+
+          zone.classList.remove(
+            "drag"
+          );
+
+        }
+      );
+
+    }
+  );
+
+  zone.addEventListener(
+    "drop",
+    event=>{
+
+      const file =
+        event.dataTransfer
+          .files[0];
+
+      if(!file){
+        return;
+      }
+
+      if(type==="html"){
+
+        loadHTMLFile(file);
+
+      }else{
+
+        loadZIP(file);
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================
+   DEVICE PREVIEW
+========================= */
+
+document
+  .querySelectorAll(
+    ".device-btn"
+  )
+  .forEach(
+    button=>{
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          document
+            .querySelectorAll(
+              ".device-btn"
+            )
+            .forEach(
+              btn=>
+                btn.classList.remove(
+                  "active"
+                )
+            );
+
+          button.classList.add(
+            "active"
+          );
+
+          const device =
+            button.dataset.device;
+
+          previewFrame.className =
+            "preview-frame "+
+            device;
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================
+   EDITOR LIVE
+========================= */
+
+editor.addEventListener(
+  "input",
+  ()=>{
+
+    updatePreview();
+
+  }
+);
+
+
+/* =========================
+   TAB KEY
+========================= */
+
+editor.addEventListener(
+  "keydown",
+  event=>{
+
+    if(
+      event.key==="Tab"
+    ){
+
+      event.preventDefault();
+
+      const start =
+        editor.selectionStart;
+
+      const end =
+        editor.selectionEnd;
+
+      editor.value =
+        editor.value.substring(
+          0,
+          start
+        )+
+        "  "+
+        editor.value.substring(
+          end
+        );
+
+      editor.selectionStart =
+        editor.selectionEnd =
+          start+2;
+
+      updatePreview();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+$("newBtn").onclick =
+  ()=>{
+
+    editor.value =
+      defaultHTML();
+
+    projectFiles=[];
+
+    renderFiles();
+
+    updatePreview();
+
+    setStatus(
+      "Projek baru dimulakan. ✓",
+      "ok"
+    );
+
+    toast(
+      "＋ Projek Baru",
+      "Template HTML telah dimuatkan."
+    );
+
+  };
+
+
+$("pasteBtn").onclick =
+  async ()=>{
+
+    try{
+
+      if(
+        navigator.clipboard &&
+        navigator.clipboard.readText
+      ){
+
+        const text =
+          await navigator
+            .clipboard
+            .readText();
+
+        if(text){
+
+          editor.value =
+            text;
+
+          projectFiles=[];
+
+          addProjectFile(
+            "index.html",
+            new Blob(
+              [text],
+              {
+                type:"text/html"
+              }
+            )
+          );
+
+          updatePreview();
+
+          toast(
+            "📋 HTML ditampal",
+            "Kod daripada clipboard telah dimasukkan."
+          );
+
+          return;
+
+        }
+
+      }
+
+      editor.focus();
+
+      toast(
+        "📋 Paste",
+        "Tekan dan tahan pada editor kemudian pilih Paste."
+      );
+
+    }catch(error){
+
+      editor.focus();
+
+      toast(
+        "📋 Paste",
+        "Tekan dan tahan pada editor kemudian pilih Paste."
+      );
+
+    }
+
+  };
+
+
+$("htmlBtn").onclick =
+  ()=>{
+    $("htmlInput").click();
+  };
+
+
+$("zipBtn").onclick =
+  ()=>{
+    $("zipInput").click();
+  };
+
+
+$("clearBtn").onclick =
+  ()=>{
+
+    editor.value="";
+
+    updatePreview();
+
+    setStatus(
+      "Editor dikosongkan."
+    );
+
+  };
+
+
+$("formatBtn").onclick =
+  formatHTML;
+
+
+$("downloadHtmlBtn").onclick =
+  downloadHTML;
+
+
+$("downloadProjectBtn").onclick =
+  downloadProject;
+
+
+$("downloadAllBtn").onclick =
+  downloadProject;
+
+
+$("extractDownloadBtn").onclick =
+  downloadProject;
+
+
+$("resetBtn").onclick =
+  ()=>{
+
+    editor.value =
+      defaultHTML();
+
+    projectFiles=[];
+
+    renderFiles();
+
+    updatePreview();
+
+    setStatus(
+      "Projek telah direset.",
+      "ok"
+    );
+
+    toast(
+      "↻ Reset",
+      "Template asal telah dipulihkan."
+    );
+
+  };
+
+
+$("packageBtn").onclick =
+  async ()=>{
+
+    await downloadProject();
+
+    setStatus(
+      "Projek berjaya dibungkus sebagai ZIP. ✓",
+      "ok"
+    );
+
+  };
+
+
+/* =========================
+   INPUT EVENTS
+========================= */
+
+$("htmlInput").addEventListener(
+  "change",
+  event=>{
+
+    const file =
+      event.target.files[0];
+
+    loadHTMLFile(file);
+
+    event.target.value="";
+
+  }
+);
+
+
+$("zipInput").addEventListener(
+  "change",
+  event=>{
+
+    const file =
+      event.target.files[0];
+
+    loadZIP(file);
+
+    event.target.value="";
+
+  }
+);
+
+
+/* =========================
+   DROPZONES
+========================= */
+
+setupDropzone(
+  $("htmlDrop"),
+  $("htmlInput"),
+  "html"
+);
+
+setupDropzone(
+  $("zipDrop"),
+  $("zipInput"),
+  "zip"
+);
+
+
+/* =========================
+   START APP
+========================= */
+
+editor.value =
+  defaultHTML();
+
+updatePreview();
+
+renderFiles();
+
+setStatus(
+  "Sedia. Masukkan HTML untuk bermula."
+);
+
+</script>
+
+</body>
+</html>
