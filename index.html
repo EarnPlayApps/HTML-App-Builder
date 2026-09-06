@@ -2,45 +2,55 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f7fb">
-<meta name="description" content="HTML App Builder - bina, edit, preview dan sediakan projek HTML">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>HTML App Builder</title>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+ box-sizing:border-box;
+}
 
 body{
  margin:0;
  font-family:Arial,Helvetica,sans-serif;
+ background:#f5f7fb;
  color:#172033;
- background:#f5f7fb
 }
 
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
+button,
+input,
+select,
+textarea{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
 
 .app{
  width:100%;
  max-width:1180px;
  margin:auto;
- padding:18px
+ padding:18px;
 }
 
 /* HEADER */
 
 .header{
  display:flex;
- align-items:center;
  justify-content:space-between;
+ align-items:center;
  gap:15px;
- margin-bottom:18px
+ margin-bottom:18px;
 }
 
 .brand{
  display:flex;
  align-items:center;
- gap:12px
+ gap:12px;
 }
 
 .logo{
@@ -49,42 +59,41 @@ button{cursor:pointer}
  border-radius:15px;
  background:#fff;
  border:1px solid #dce2ed;
- box-shadow:0 8px 25px #17203312;
  display:flex;
  align-items:center;
  justify-content:center;
- font-size:27px
+ font-size:27px;
+ box-shadow:0 8px 25px #17203312;
 }
 
 .brand-name{
  font-size:21px;
- font-weight:900
+ font-weight:900;
 }
 
 .brand-sub{
+ margin-top:4px;
  color:#7b8495;
  font-size:11px;
- margin-top:4px
 }
 
 .status{
- display:flex;
- align-items:center;
- gap:7px;
  padding:9px 13px;
  border-radius:30px;
  background:#fff;
  border:1px solid #dce2ed;
  color:#41845f;
  font-size:11px;
- font-weight:800
+ font-weight:800;
 }
 
 .status-dot{
+ display:inline-block;
  width:8px;
  height:8px;
  border-radius:50%;
- background:#35bd71
+ background:#35bd71;
+ margin-right:7px;
 }
 
 /* HERO */
@@ -94,27 +103,27 @@ button{cursor:pointer}
  border:1px solid #dfe4ed;
  border-radius:25px;
  padding:28px;
+ margin-bottom:18px;
  box-shadow:0 12px 35px #1720330b;
- margin-bottom:18px
 }
 
 .hero h1{
  margin:0;
- font-size:30px
+ font-size:30px;
 }
 
 .hero p{
  margin:8px 0 0;
  color:#727c8e;
+ font-size:13px;
  line-height:1.6;
- font-size:13px
 }
 
 .steps{
  display:flex;
  flex-wrap:wrap;
  gap:8px;
- margin-top:20px
+ margin-top:20px;
 }
 
 .step{
@@ -124,7 +133,7 @@ button{cursor:pointer}
  border:1px solid #e2e7ef;
  color:#566176;
  font-size:11px;
- font-weight:800
+ font-weight:800;
 }
 
 /* NAV */
@@ -133,7 +142,7 @@ button{cursor:pointer}
  display:flex;
  gap:7px;
  overflow:auto;
- margin-bottom:14px
+ margin-bottom:14px;
 }
 
 .nav button{
@@ -144,32 +153,32 @@ button{cursor:pointer}
  border-radius:11px;
  padding:10px 14px;
  font-size:11px;
- font-weight:900
+ font-weight:900;
 }
 
 .nav button.active{
  background:#356df3;
  color:#fff;
- border-color:#356df3
+ border-color:#356df3;
 }
 
-/* SECTIONS */
+/* SECTION */
 
 .section{
- display:none
+ display:none;
 }
 
 .section.active{
- display:block
+ display:block;
 }
 
-/* TOOLBAR */
+/* BUTTON */
 
 .toolbar{
  display:flex;
  flex-wrap:wrap;
  gap:9px;
- margin-bottom:14px
+ margin-bottom:14px;
 }
 
 .btn{
@@ -181,27 +190,26 @@ button{cursor:pointer}
  padding:0 15px;
  font-weight:800;
  font-size:12px;
- box-shadow:0 5px 15px #17203308
 }
 
 .btn.primary{
- border:0;
  background:#356df3;
- color:#fff
+ color:white;
+ border:0;
 }
 
 .btn.success{
- border:0;
  background:#3c9b68;
- color:#fff
+ color:white;
+ border:0;
 }
 
 .btn.danger{
- color:#c84646
+ color:#c84646;
 }
 
-#htmlInput,#zipInput,#iconInput{
- display:none
+input[type=file]{
+ display:none;
 }
 
 /* WORKSPACE */
@@ -209,7 +217,7 @@ button{cursor:pointer}
 .workspace{
  display:grid;
  grid-template-columns:1fr 1fr;
- gap:16px
+ gap:16px;
 }
 
 .panel{
@@ -217,27 +225,26 @@ button{cursor:pointer}
  border:1px solid #dfe4ed;
  border-radius:20px;
  overflow:hidden;
- box-shadow:0 12px 35px #1720330b
+ box-shadow:0 12px 35px #1720330b;
 }
 
 .panel-head{
  min-height:55px;
  display:flex;
- align-items:center;
  justify-content:space-between;
- gap:10px;
+ align-items:center;
  padding:0 15px;
- border-bottom:1px solid #e7ebf1
+ border-bottom:1px solid #e7ebf1;
 }
 
 .panel-title{
  font-size:13px;
- font-weight:900
+ font-weight:900;
 }
 
 .panel-small{
  color:#8a93a3;
- font-size:10px
+ font-size:10px;
 }
 
 #editor{
@@ -253,25 +260,23 @@ button{cursor:pointer}
  font-family:Consolas,monospace;
  font-size:12px;
  line-height:1.65;
- tab-size:2
 }
 
 .preview-wrap{
  background:#eef1f6;
- padding:14px
+ padding:14px;
 }
 
 .preview-tools{
  display:flex;
- align-items:center;
  justify-content:space-between;
- gap:8px;
- margin-bottom:9px
+ align-items:center;
+ margin-bottom:9px;
 }
 
 .device-buttons{
  display:flex;
- gap:5px
+ gap:5px;
 }
 
 .device-btn{
@@ -281,22 +286,21 @@ button{cursor:pointer}
  border-radius:8px;
  padding:6px 9px;
  font-size:10px;
- font-weight:800
+ font-weight:800;
 }
 
 .device-btn.active{
  background:#edf3ff;
  color:#356df3;
- border-color:#bfd0fb
+ border-color:#bfd0fb;
 }
 
 #previewFrame{
  width:100%;
  height:530px;
- display:block;
  border:1px solid #d8dee9;
  border-radius:13px;
- background:#fff
+ background:#fff;
 }
 
 /* FILES */
@@ -307,13 +311,13 @@ button{cursor:pointer}
  border:1px solid #dfe4ed;
  border-radius:20px;
  padding:17px;
- box-shadow:0 12px 35px #1720330b
+ box-shadow:0 12px 35px #1720330b;
 }
 
 .file-area-title{
  font-size:13px;
  font-weight:900;
- margin-bottom:11px
+ margin-bottom:11px;
 }
 
 .file-list{
@@ -321,7 +325,7 @@ button{cursor:pointer}
  flex-direction:column;
  gap:7px;
  max-height:330px;
- overflow:auto
+ overflow:auto;
 }
 
 .file-row{
@@ -331,27 +335,25 @@ button{cursor:pointer}
  padding:10px;
  border:1px solid #e3e7ee;
  border-radius:11px;
- background:#fafbfd
+ background:#fafbfd;
 }
 
 .file-icon{
  width:30px;
  height:30px;
- display:flex;
- align-items:center;
- justify-content:center;
  border-radius:8px;
  background:#edf2fa;
- font-size:15px;
- flex:none
+ display:flex;
+ justify-content:center;
+ align-items:center;
 }
 
 .file-name{
  flex:1;
  min-width:0;
  font-size:11px;
+ word-break:break-all;
  color:#566176;
- word-break:break-all
 }
 
 .file-action{
@@ -361,22 +363,21 @@ button{cursor:pointer}
  padding:6px 9px;
  font-size:10px;
  font-weight:800;
- color:#40506a
 }
 
 .empty{
  padding:24px;
  text-align:center;
  color:#9099aa;
- font-size:11px
+ font-size:11px;
 }
 
-/* BUILDER */
+/* CARDS */
 
 .builder{
  display:grid;
  grid-template-columns:1fr 1fr;
- gap:16px
+ gap:16px;
 }
 
 .card{
@@ -384,23 +385,23 @@ button{cursor:pointer}
  border:1px solid #dfe4ed;
  border-radius:20px;
  padding:19px;
- box-shadow:0 12px 35px #1720330b
+ box-shadow:0 12px 35px #1720330b;
 }
 
 .card h2{
  margin:0 0 6px;
- font-size:17px
+ font-size:17px;
 }
 
 .card-desc{
  margin:0 0 17px;
  color:#7c8697;
  font-size:11px;
- line-height:1.5
+ line-height:1.5;
 }
 
 .form-group{
- margin-bottom:13px
+ margin-bottom:13px;
 }
 
 .form-group label{
@@ -408,7 +409,7 @@ button{cursor:pointer}
  margin-bottom:6px;
  color:#59657a;
  font-size:10px;
- font-weight:900
+ font-weight:900;
 }
 
 .form-group input,
@@ -418,54 +419,22 @@ button{cursor:pointer}
  border:1px solid #d8deea;
  border-radius:10px;
  padding:0 12px;
- outline:none;
+ outline:0;
  background:#fbfcfe;
- color:#172033
 }
 
-.form-group input:focus,
-.form-group select:focus{
- border-color:#8daaf5;
- background:#fff
+.notice{
+ padding:12px 14px;
+ border-radius:11px;
+ background:#f2f6ff;
+ border:1px solid #d8e4ff;
+ color:#52627d;
+ font-size:10px;
+ line-height:1.5;
+ margin-bottom:14px;
 }
 
-.icon-box{
- display:flex;
- align-items:center;
- gap:12px;
- border:1px dashed #cfd7e5;
- border-radius:12px;
- padding:12px;
- background:#fafbfd
-}
-
-.icon-preview{
- width:55px;
- height:55px;
- border-radius:13px;
- background:#edf2fa;
- display:flex;
- align-items:center;
- justify-content:center;
- overflow:hidden;
- font-size:22px;
- flex:none
-}
-
-.icon-preview img{
- width:100%;
- height:100%;
- object-fit:cover
-}
-
-.builder-actions{
- display:flex;
- flex-wrap:wrap;
- gap:8px;
- margin-top:17px
-}
-
-/* BUILD PREVIEW */
+/* APP PREVIEW */
 
 .build-preview{
  margin-top:16px;
@@ -473,19 +442,14 @@ button{cursor:pointer}
  border:1px solid #dfe4ed;
  border-radius:20px;
  padding:19px;
- box-shadow:0 12px 35px #1720330b
-}
-
-.build-preview h2{
- margin:0 0 15px;
- font-size:16px
+ box-shadow:0 12px 35px #1720330b;
 }
 
 .preview-app{
  display:grid;
  grid-template-columns:90px 1fr;
  gap:15px;
- align-items:center
+ align-items:center;
 }
 
 .app-icon-large{
@@ -497,39 +461,39 @@ button{cursor:pointer}
  align-items:center;
  justify-content:center;
  overflow:hidden;
- font-size:30px
+ font-size:30px;
 }
 
 .app-icon-large img{
  width:100%;
  height:100%;
- object-fit:cover
+ object-fit:cover;
 }
 
 .app-name-large{
  font-size:19px;
- font-weight:900
+ font-weight:900;
 }
 
 .app-id{
  margin-top:5px;
  color:#7d8798;
  font-size:10px;
- word-break:break-all
+ word-break:break-all;
 }
 
 .meta-grid{
  display:grid;
  grid-template-columns:repeat(3,1fr);
  gap:8px;
- margin-top:17px
+ margin-top:17px;
 }
 
 .meta{
  padding:11px;
  border-radius:10px;
  background:#f5f7fb;
- border:1px solid #e3e7ee
+ border:1px solid #e3e7ee;
 }
 
 .meta span{
@@ -537,55 +501,223 @@ button{cursor:pointer}
  color:#8a93a3;
  font-size:8px;
  font-weight:900;
- text-transform:uppercase
 }
 
 .meta strong{
  display:block;
  margin-top:4px;
- font-size:11px
+ font-size:11px;
 }
 
-/* INFO */
+/* ADMOB */
 
-.info-grid{
+.admob-grid{
  display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:10px;
- margin-top:16px
+ grid-template-columns:1fr 1fr;
+ gap:16px;
 }
 
-.info{
+.ad-card{
  background:#fff;
  border:1px solid #dfe4ed;
- border-radius:15px;
- padding:14px
+ border-radius:20px;
+ padding:19px;
+ box-shadow:0 12px 35px #1720330b;
 }
 
-.info-label{
- color:#8a93a3;
- font-size:9px;
- font-weight:800;
- text-transform:uppercase
+.ad-card h3{
+ margin:0 0 6px;
+ font-size:15px;
 }
 
-.info-value{
- margin-top:5px;
- font-size:13px;
- font-weight:900
-}
-
-/* NOTICE */
-
-.notice{
- padding:12px 14px;
- border-radius:11px;
- background:#f2f6ff;
- border:1px solid #d8e4ff;
- color:#52627d;
+.ad-card p{
+ margin:0 0 16px;
+ color:#7c8697;
  font-size:10px;
  line-height:1.5;
- margin-bottom:14px
+}
+
+.ad-row{
+ padding:14px;
+ border:1px solid #e1e6ef;
+ border-radius:13px;
+ margin-bottom:10px;
+ background:#fafbfd;
+}
+
+.ad-row-head{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ margin-bottom:9px;
+}
+
+.ad-title{
+ font-size:12px;
+ font-weight:900;
+}
+
+.ad-desc{
+ color:#7e8798;
+ font-size:9px;
+ line-height:1.4;
+ margin-bottom:9px;
+}
+
+.ad-row input{
+ width:100%;
+ height:40px;
+ border:1px solid #d8deea;
+ border-radius:9px;
+ padding:0 10px;
+ outline:0;
+ background:#fff;
+ font-size:11px;
+}
+
+.switch{
+ position:relative;
+ width:38px;
+ height:21px;
+ flex:none;
+}
+
+.switch input{
+ opacity:0;
+ width:0;
+ height:0;
+}
+
+.slider{
+ position:absolute;
+ inset:0;
+ border-radius:30px;
+ background:#d8deea;
+ transition:.2s;
+}
+
+.slider:before{
+ content:"";
+ position:absolute;
+ width:15px;
+ height:15px;
+ left:3px;
+ top:3px;
+ border-radius:50%;
+ background:#fff;
+ transition:.2s;
+}
+
+.switch input:checked + .slider{
+ background:#356df3;
+}
+
+.switch input:checked + .slider:before{
+ transform:translateX(17px);
+}
+
+.ad-status{
+ margin-top:7px;
+ font-size:9px;
+ font-weight:800;
+}
+
+.valid{
+ color:#39835b;
+}
+
+.invalid{
+ color:#c04c4c;
+}
+
+.advice{
+ padding:14px;
+ border-radius:13px;
+ background:#f7f9fc;
+ border:1px solid #e1e6ee;
+ margin-bottom:10px;
+}
+
+.advice strong{
+ display:block;
+ font-size:11px;
+ margin-bottom:5px;
+}
+
+.advice span{
+ color:#707b8f;
+ font-size:9px;
+ line-height:1.5;
+}
+
+.admob-preview{
+ margin-top:16px;
+ background:#fff;
+ border:1px solid #dfe4ed;
+ border-radius:20px;
+ padding:19px;
+ box-shadow:0 12px 35px #1720330b;
+}
+
+.admob-summary{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:9px;
+}
+
+.admob-summary-item{
+ padding:11px;
+ background:#f5f7fb;
+ border:1px solid #e3e7ee;
+ border-radius:10px;
+}
+
+.admob-summary-item span{
+ display:block;
+ color:#8a93a3;
+ font-size:8px;
+ font-weight:900;
+}
+
+.admob-summary-item strong{
+ display:block;
+ margin-top:4px;
+ font-size:10px;
+ word-break:break-all;
+}
+
+/* PUBLISH */
+
+.publish{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:16px;
+}
+
+.publish-card{
+ background:#fff;
+ border:1px solid #dfe4ed;
+ border-radius:20px;
+ padding:19px;
+ box-shadow:0 12px 35px #1720330b;
+}
+
+.publish-card h2{
+ margin:0 0 10px;
+ font-size:16px;
+}
+
+.publish-card ol{
+ padding-left:20px;
+ margin:0;
+ color:#697489;
+ font-size:11px;
+ line-height:1.9;
+}
+
+.publish-card strong{
+ color:#172033;
 }
 
 /* TOAST */
@@ -605,24 +737,23 @@ button{cursor:pointer}
  opacity:0;
  pointer-events:none;
  transition:.25s;
- z-index:9999
+ z-index:9999;
 }
 
 .toast.show{
  opacity:1;
- transform:translate(-50%,0)
+ transform:translate(-50%,0);
 }
 
 .toast-title{
  font-size:12px;
- font-weight:900
+ font-weight:900;
 }
 
 .toast-text{
  margin-top:3px;
  color:#c7cfdd;
  font-size:10px;
- line-height:1.4
 }
 
 /* MOBILE */
@@ -630,25 +761,19 @@ button{cursor:pointer}
 @media(max-width:800px){
 
  .workspace,
- .builder{
-  grid-template-columns:1fr
+ .builder,
+ .admob-grid,
+ .publish{
+  grid-template-columns:1fr;
  }
 
  #editor,
  #previewFrame{
-  height:430px
- }
-
- .hero h1{
-  font-size:25px
+  height:430px;
  }
 
  .meta-grid{
-  grid-template-columns:1fr
- }
-
- .info-grid{
-  grid-template-columns:1fr
+  grid-template-columns:1fr;
  }
 
 }
@@ -656,41 +781,45 @@ button{cursor:pointer}
 @media(max-width:500px){
 
  .app{
-  padding:10px
+  padding:10px;
  }
 
  .hero{
   padding:20px;
-  border-radius:20px
+ }
+
+ .hero h1{
+  font-size:25px;
  }
 
  .status{
-  display:none
+  display:none;
  }
 
  .toolbar{
   display:grid;
-  grid-template-columns:1fr 1fr
+  grid-template-columns:1fr 1fr;
  }
 
  .toolbar .primary{
-  grid-column:1/-1
+  grid-column:1/-1;
  }
 
  .btn{
-  width:100%
+  width:100%;
  }
 
  .preview-app{
   grid-template-columns:1fr;
-  text-align:center
+  text-align:center;
  }
 
  .app-icon-large{
-  margin:auto
+  margin:auto;
  }
 
 }
+
 </style>
 </head>
 
@@ -705,8 +834,15 @@ button{cursor:pointer}
 <div class="logo">🧩</div>
 
 <div>
-<div class="brand-name">HTML App Builder</div>
-<div class="brand-sub">Build • Preview • Package • Publish</div>
+
+<div class="brand-name">
+HTML App Builder
+</div>
+
+<div class="brand-sub">
+Build • Preview • Package • Monetize
+</div>
+
 </div>
 
 </div>
@@ -724,17 +860,19 @@ LOCAL BUILDER
 <h1>Bina App HTML Dengan Mudah</h1>
 
 <p>
-Masukkan HTML, edit kod, lihat live preview dan sediakan
-konfigurasi projek untuk langkah seterusnya.
+Masukkan HTML, edit, preview, bungkus projek,
+sediakan konfigurasi AdMob dan ikuti langkah publish.
 </p>
 
 <div class="steps">
+
 <div class="step">1. HTML</div>
 <div class="step">2. Edit</div>
 <div class="step">3. Preview</div>
 <div class="step">4. Bungkus</div>
 <div class="step">5. AdMob</div>
 <div class="step">6. Publish</div>
+
 </div>
 
 </section>
@@ -750,10 +888,18 @@ konfigurasi projek untuk langkah seterusnya.
 📦 Bungkus App
 </button>
 
+<button data-section="admobSection">
+📢 AdMob Setup
+</button>
+
+<button data-section="publishSection">
+🚀 Publish
+</button>
+
 </nav>
 
 
-<!-- ================= EDITOR ================= -->
+<!-- EDITOR -->
 
 <section
 id="editorSection"
@@ -761,30 +907,48 @@ class="section active">
 
 <div class="toolbar">
 
-<button class="btn primary" id="newBtn">
+<button
+class="btn primary"
+id="newBtn">
 ＋ HTML Baru
 </button>
 
-<button class="btn" id="uploadHtmlBtn">
+<button
+class="btn"
+id="uploadHtmlBtn">
 📄 Import HTML
 </button>
 
-<button class="btn" id="uploadZipBtn">
+<button
+class="btn"
+id="uploadZipBtn">
 📦 Import ZIP
 </button>
 
-<button class="btn" id="downloadHtmlBtn">
+<button
+class="btn"
+id="downloadHtmlBtn">
 ⬇ Download HTML
 </button>
 
-<button class="btn danger" id="clearBtn">
+<button
+class="btn danger"
+id="clearBtn">
 🗑 Kosongkan
 </button>
 
 </div>
 
-<input type="file" id="htmlInput" accept=".html,.htm">
-<input type="file" id="zipInput" accept=".zip">
+<input
+type="file"
+id="htmlInput"
+accept=".html,.htm">
+
+<input
+type="file"
+id="zipInput"
+accept=".zip">
+
 
 <div class="workspace">
 
@@ -796,7 +960,9 @@ class="section active">
 ✏️ HTML Editor
 </div>
 
-<div class="panel-small" id="editorInfo">
+<div
+class="panel-small"
+id="editorInfo">
 0 aksara
 </div>
 
@@ -804,8 +970,7 @@ class="section active">
 
 <textarea
 id="editor"
-spellcheck="false"
-placeholder="Tulis atau paste kod HTML di sini..."></textarea>
+spellcheck="false"></textarea>
 
 </div>
 
@@ -860,7 +1025,6 @@ id="openPreviewBtn">
 
 <iframe
 id="previewFrame"
-title="HTML Live Preview"
 sandbox="allow-scripts allow-forms allow-modals allow-popups">
 </iframe>
 
@@ -877,17 +1041,19 @@ sandbox="allow-scripts allow-forms allow-modals allow-popups">
 📦 Fail Projek
 </div>
 
-<div class="file-list" id="fileList">
+<div
+class="file-list"
+id="fileList">
 
 <div class="empty">
 Belum ada fail projek.
-<br>
-Import ZIP untuk melihat fail di dalamnya.
 </div>
 
 </div>
 
-<div class="toolbar" style="margin-top:12px;margin-bottom:0">
+<div
+class="toolbar"
+style="margin-top:12px;margin-bottom:0">
 
 <button
 class="btn"
@@ -899,36 +1065,10 @@ id="downloadAllBtn">
 
 </section>
 
-
-<div class="info-grid">
-
-<div class="info">
-<div class="info-label">HTML</div>
-<div class="info-value" id="htmlStatus">
-Belum dimasukkan
-</div>
-</div>
-
-<div class="info">
-<div class="info-label">Fail ZIP</div>
-<div class="info-value" id="zipStatus">
-0 fail
-</div>
-</div>
-
-<div class="info">
-<div class="info-label">Preview</div>
-<div class="info-value">
-Live
-</div>
-</div>
-
-</div>
-
 </section>
 
 
-<!-- ================= BUILDER ================= -->
+<!-- BUILDER -->
 
 <section
 id="builderSection"
@@ -950,7 +1090,7 @@ Ia belum menghasilkan APK/AAB sebenar secara terus dalam browser.
 <h2>📱 Konfigurasi App</h2>
 
 <p class="card-desc">
-Masukkan maklumat asas aplikasi sebelum projek dibungkus.
+Maklumat asas aplikasi.
 </p>
 
 
@@ -960,9 +1100,7 @@ Masukkan maklumat asas aplikasi sebelum projek dibungkus.
 
 <input
 id="appName"
-type="text"
-placeholder="Contoh: My Tools App"
-maxlength="50">
+placeholder="Contoh: My Tools App">
 
 </div>
 
@@ -973,9 +1111,7 @@ maxlength="50">
 
 <input
 id="packageId"
-type="text"
-placeholder="com.example.myapp"
-maxlength="100">
+placeholder="com.example.myapp">
 
 </div>
 
@@ -986,9 +1122,7 @@ maxlength="100">
 
 <input
 id="appVersion"
-type="text"
-value="1.0.0"
-maxlength="20">
+value="1.0.0">
 
 </div>
 
@@ -1007,6 +1141,10 @@ Android
 Web App
 </option>
 
+<option value="ios">
+iOS
+</option>
+
 </select>
 
 </div>
@@ -1018,12 +1156,29 @@ Web App
 
 <select id="minAndroid">
 
-<option value="23">Android 6.0 (API 23)</option>
-<option value="24">Android 7.0 (API 24)</option>
-<option value="26">Android 8.0 (API 26)</option>
-<option value="28">Android 9 (API 28)</option>
-<option value="29">Android 10 (API 29)</option>
-<option value="31">Android 12 (API 31)</option>
+<option value="23">
+Android 6.0 — API 23
+</option>
+
+<option value="24">
+Android 7.0 — API 24
+</option>
+
+<option value="26">
+Android 8.0 — API 26
+</option>
+
+<option value="28">
+Android 9 — API 28
+</option>
+
+<option value="29">
+Android 10 — API 29
+</option>
+
+<option value="31">
+Android 12 — API 31
+</option>
 
 </select>
 
@@ -1034,14 +1189,6 @@ Web App
 
 <label>Ikon App</label>
 
-<div class="icon-box">
-
-<div
-class="icon-preview"
-id="iconPreview">
-🧩
-</div>
-
 <div>
 
 <button
@@ -1050,12 +1197,6 @@ id="uploadIconBtn"
 type="button">
 Pilih Ikon
 </button>
-
-<div style="margin-top:5px;color:#8993a4;font-size:9px">
-PNG / JPG / WEBP
-</div>
-
-</div>
 
 </div>
 
@@ -1067,7 +1208,8 @@ id="iconInput"
 accept="image/png,image/jpeg,image/webp">
 
 
-<div class="builder-actions">
+<div class="toolbar"
+style="margin-top:15px;margin-bottom:0">
 
 <button
 class="btn primary"
@@ -1088,11 +1230,7 @@ id="downloadProjectBtn">
 
 <div class="card">
 
-<h2>🔍 Ringkasan</h2>
-
-<p class="card-desc">
-Semak konfigurasi sebelum menjana projek.
-</p>
+<h2>🔍 Preview App</h2>
 
 <div class="preview-app">
 
@@ -1124,18 +1262,33 @@ com.example.myhtmlapp
 <div class="meta-grid">
 
 <div class="meta">
+
 <span>Versi</span>
-<strong id="previewVersion">1.0.0</strong>
+
+<strong id="previewVersion">
+1.0.0
+</strong>
+
 </div>
 
 <div class="meta">
+
 <span>Platform</span>
-<strong id="previewPlatform">Android</strong>
+
+<strong id="previewPlatform">
+Android
+</strong>
+
 </div>
 
 <div class="meta">
+
 <span>Minimum</span>
-<strong id="previewAndroid">API 23</strong>
+
+<strong id="previewAndroid">
+API 23
+</strong>
+
 </div>
 
 </div>
@@ -1147,13 +1300,455 @@ com.example.myhtmlapp
 
 <div class="build-preview">
 
-<h2>📋 Status Projek</h2>
+<h2>Status Projek</h2>
 
 <div
-id="buildStatus"
 class="notice"
-style="margin-bottom:0">
+id="buildStatus">
 Belum ada projek dijana.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ADMOB -->
+
+<section
+id="admobSection"
+class="section">
+
+<div class="notice">
+
+<strong>AdMob Setup:</strong>
+Masukkan ID yang diberikan oleh AdMob.
+Builder ini tidak meminta kata laluan atau akses akaun Google.
+Untuk testing gunakan ID ujian terlebih dahulu.
+
+</div>
+
+
+<div class="admob-grid">
+
+
+<div class="ad-card">
+
+<h3>📱 Platform & App ID</h3>
+
+<p>
+Pilih platform dan masukkan App ID.
+Android dan iOS disimpan secara berasingan.
+</p>
+
+
+<div class="form-group">
+
+<label>Platform AdMob</label>
+
+<select id="admobPlatform">
+
+<option value="android">
+Android
+</option>
+
+<option value="ios">
+iOS
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>AdMob App ID</label>
+
+<input
+id="admobAppId"
+placeholder="ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx">
+
+<div
+class="ad-status"
+id="appIdStatus">
+Belum disemak
+</div>
+
+</div>
+
+
+<div class="advice">
+
+<strong>💡 Banner</strong>
+
+<span>
+Sesuai untuk banyak aplikasi utiliti kerana
+iklan boleh diletakkan di kawasan yang tidak
+mengganggu kandungan utama.
+</span>
+
+</div>
+
+
+<div class="advice">
+
+<strong>💡 Interstitial</strong>
+
+<span>
+Sesuai pada titik peralihan yang semula jadi,
+bukan ketika pengguna sedang melakukan tindakan penting.
+</span>
+
+</div>
+
+
+<div class="advice">
+
+<strong>💡 Rewarded</strong>
+
+<span>
+Sesuai jika pengguna memang mendapat manfaat
+selepas memilih untuk menonton iklan.
+</span>
+
+</div>
+
+
+<div class="advice">
+
+<strong>💡 Native</strong>
+
+<span>
+Sesuai jika reka bentuk aplikasi memerlukan iklan
+yang diintegrasikan dengan senarai atau kandungan.
+</span>
+
+</div>
+
+</div>
+
+
+<div class="ad-card">
+
+<h3>🎯 Ad Unit ID</h3>
+
+<p>
+Aktifkan jenis iklan yang ingin digunakan dan
+masukkan Ad Unit ID masing-masing.
+</p>
+
+
+<div class="ad-row">
+
+<div class="ad-row-head">
+
+<div class="ad-title">
+Banner
+</div>
+
+<label class="switch">
+
+<input
+type="checkbox"
+id="bannerEnabled">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div class="ad-desc">
+Iklan banner yang kekal di kawasan tertentu.
+</div>
+
+<input
+id="bannerId"
+placeholder="Banner Ad Unit ID">
+
+<div
+class="ad-status"
+id="bannerStatus">
+Belum diisi
+</div>
+
+</div>
+
+
+<div class="ad-row">
+
+<div class="ad-row-head">
+
+<div class="ad-title">
+Interstitial
+</div>
+
+<label class="switch">
+
+<input
+type="checkbox"
+id="interstitialEnabled">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div class="ad-desc">
+Iklan penuh skrin untuk titik peralihan yang sesuai.
+</div>
+
+<input
+id="interstitialId"
+placeholder="Interstitial Ad Unit ID">
+
+<div
+class="ad-status"
+id="interstitialStatus">
+Belum diisi
+</div>
+
+</div>
+
+
+<div class="ad-row">
+
+<div class="ad-row-head">
+
+<div class="ad-title">
+Rewarded
+</div>
+
+<label class="switch">
+
+<input
+type="checkbox"
+id="rewardedEnabled">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div class="ad-desc">
+Pengguna memilih untuk menonton iklan bagi mendapatkan ganjaran.
+</div>
+
+<input
+id="rewardedId"
+placeholder="Rewarded Ad Unit ID">
+
+<div
+class="ad-status"
+id="rewardedStatus">
+Belum diisi
+</div>
+
+</div>
+
+
+<div class="ad-row">
+
+<div class="ad-row-head">
+
+<div class="ad-title">
+Native
+</div>
+
+<label class="switch">
+
+<input
+type="checkbox"
+id="nativeEnabled">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div class="ad-desc">
+Iklan yang direka supaya sepadan dengan kandungan aplikasi.
+</div>
+
+<input
+id="nativeId"
+placeholder="Native Ad Unit ID">
+
+<div
+class="ad-status"
+id="nativeStatus">
+Belum diisi
+</div>
+
+</div>
+
+
+<div class="toolbar">
+
+<button
+class="btn primary"
+id="saveAdmobBtn">
+💾 Simpan Setting
+</button>
+
+<button
+class="btn success"
+id="downloadAdmobBtn">
+⬇ Download Config
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="admob-preview">
+
+<h3 style="margin-top:0">
+👁 Preview AdMob Setup
+</h3>
+
+<div
+class="admob-summary">
+
+<div class="admob-summary-item">
+
+<span>Platform</span>
+
+<strong id="summaryPlatform">
+Android
+</strong>
+
+</div>
+
+<div class="admob-summary-item">
+
+<span>App ID</span>
+
+<strong id="summaryAppId">
+Belum diisi
+</strong>
+
+</div>
+
+<div class="admob-summary-item">
+
+<span>Banner</span>
+
+<strong id="summaryBanner">
+Tidak aktif
+</strong>
+
+</div>
+
+<div class="admob-summary-item">
+
+<span>Interstitial</span>
+
+<strong id="summaryInterstitial">
+Tidak aktif
+</strong>
+
+</div>
+
+<div class="admob-summary-item">
+
+<span>Rewarded</span>
+
+<strong id="summaryRewarded">
+Tidak aktif
+</strong>
+
+</div>
+
+<div class="admob-summary-item">
+
+<span>Native</span>
+
+<strong id="summaryNative">
+Tidak aktif
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PUBLISH -->
+
+<section
+id="publishSection"
+class="section">
+
+<div class="notice">
+
+<strong>Publish Guide:</strong>
+HTML App Builder membantu menyediakan projek dan konfigurasi.
+Proses akhir bina APK/AAB atau IPA serta penghantaran ke store
+perlu dibuat menggunakan tool/platform pembangunan yang sesuai.
+
+</div>
+
+
+<div class="publish">
+
+<div class="publish-card">
+
+<h2>🤖 Google Play</h2>
+
+<ol>
+
+<li>Pastikan nama app dan package ID betul.</li>
+
+<li>Pastikan versi app telah dinaikkan jika membuat release baru.</li>
+
+<li>Gunakan projek Android yang telah dibina.</li>
+
+<li>Build release <strong>AAB</strong>.</li>
+
+<li>Semak polisi kandungan dan polisi iklan.</li>
+
+<li>Daftarkan aplikasi di Google Play Console.</li>
+
+<li>Upload AAB dan lengkapkan maklumat store.</li>
+
+</ol>
+
+</div>
+
+
+<div class="publish-card">
+
+<h2>🍎 App Store</h2>
+
+<ol>
+
+<li>Gunakan projek iOS yang telah dibina.</li>
+
+<li>Pastikan Bundle ID sepadan.</li>
+
+<li>Semak konfigurasi AdMob untuk iOS.</li>
+
+<li>Build menggunakan tool pembangunan iOS.</li>
+
+<li>Uji aplikasi pada peranti.</li>
+
+<li>Gunakan App Store Connect untuk submission.</li>
+
+<li>Lengkapkan metadata dan privacy information.</li>
+
+</ol>
+
 </div>
 
 </div>
@@ -1163,76 +1758,121 @@ Belum ada projek dijana.
 </div>
 
 
-<div class="toast" id="toast">
+<div
+class="toast"
+id="toast">
 
-<div class="toast-title" id="toastTitle">
+<div
+class="toast-title"
+id="toastTitle">
 Berjaya
 </div>
 
-<div class="toast-text" id="toastText"></div>
+<div
+class="toast-text"
+id="toastText">
+</div>
 
 </div>
 
 
 <script>
+
 "use strict";
 
 
-/* =====================================
+/* =================================
    STATE
-===================================== */
+================================= */
 
 let projectFiles=[];
 let iconDataUrl="";
 let generatedProject=null;
 
 
-/* =====================================
-   ELEMENTS
-===================================== */
+/* =================================
+   HELPERS
+================================= */
 
-const $=id=>document.getElementById(id);
+const $=id=>
+ document.getElementById(id);
 
-const editor=$("editor");
-const previewFrame=$("previewFrame");
-
-
-/* =====================================
-   TOAST
-===================================== */
-
-let toastTimer=null;
 
 function showToast(title,text){
-
- clearTimeout(toastTimer);
 
  $("toastTitle").textContent=title;
  $("toastText").textContent=text;
 
  $("toast").classList.add("show");
 
- toastTimer=setTimeout(()=>{
+ clearTimeout(
+  showToast.timer
+ );
+
+ showToast.timer=setTimeout(()=>{
   $("toast").classList.remove("show");
  },3200);
 
 }
 
 
-/* =====================================
+function downloadBlob(blob,name){
+
+ const url=
+  URL.createObjectURL(blob);
+
+ const a=
+  document.createElement("a");
+
+ a.href=url;
+ a.download=name;
+
+ document.body.appendChild(a);
+
+ a.click();
+
+ a.remove();
+
+ setTimeout(()=>{
+  URL.revokeObjectURL(url);
+ },10000);
+
+}
+
+
+function escapeHTML(value){
+
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
+
+
+/* =================================
    DEFAULT HTML
-===================================== */
+================================= */
 
 function defaultHTML(){
 
  return `<!DOCTYPE html>
+
 <html lang="ms">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
 <title>My HTML App</title>
 
 <style>
+
 body{
  margin:0;
  min-height:100vh;
@@ -1262,7 +1902,9 @@ button{
  font-weight:bold;
  cursor:pointer;
 }
+
 </style>
+
 </head>
 
 <body>
@@ -1271,7 +1913,9 @@ button{
 
 <h1>Hello 👋</h1>
 
-<p>Ini ialah live preview HTML anda.</p>
+<p>
+Ini ialah live preview HTML anda.
+</p>
 
 <button onclick="alert('Berfungsi!')">
 Test Button
@@ -1280,52 +1924,46 @@ Test Button
 </div>
 
 </body>
+
 </html>`;
 
 }
 
 
-/* =====================================
-   PREVIEW
-===================================== */
+/* =================================
+   EDITOR
+================================= */
 
-let previewTimer=null;
+const editor=$("editor");
+const previewFrame=$("previewFrame");
+
+
+editor.value=
+ defaultHTML();
+
 
 function updatePreview(){
 
- clearTimeout(previewTimer);
-
- previewTimer=setTimeout(()=>{
-
-  previewFrame.srcdoc=editor.value;
-
- },100);
-
- updateEditorInfo();
-
-}
-
-
-function updateEditorInfo(){
-
- const length=editor.value.length;
+ previewFrame.srcdoc=
+  editor.value;
 
  $("editorInfo").textContent=
-  length.toLocaleString("ms-MY")+" aksara";
-
- $("htmlStatus").textContent=
-  length ? "HTML tersedia":"Belum dimasukkan";
+  editor.value.length.toLocaleString("ms-MY")
+  +" aksara";
 
 }
 
 
-/* =====================================
-   NEW HTML
-===================================== */
+editor.addEventListener(
+ "input",
+ updatePreview
+);
+
 
 $("newBtn").onclick=()=>{
 
- editor.value=defaultHTML();
+ editor.value=
+  defaultHTML();
 
  projectFiles=[];
 
@@ -1334,101 +1972,86 @@ $("newBtn").onclick=()=>{
  updatePreview();
 
  showToast(
-  "✅ HTML Baru",
-  "Template HTML telah disediakan."
+  "HTML Baru",
+  "Template telah disediakan."
  );
 
 };
 
 
-/* =====================================
+/* =================================
    IMPORT HTML
-===================================== */
+================================= */
 
 $("uploadHtmlBtn").onclick=()=>{
  $("htmlInput").click();
 };
 
 
-$("htmlInput").onchange=async event=>{
+$("htmlInput").onchange=async e=>{
 
- const file=event.target.files[0];
+ const file=e.target.files[0];
 
  if(!file)return;
 
- try{
+ editor.value=
+  await file.text();
 
-  editor.value=await file.text();
+ projectFiles=[
+  {
+   name:file.name,
+   path:file.name,
+   blob:file
+  }
+ ];
 
-  projectFiles=[
-   {
-    name:file.name,
-    path:file.name,
-    blob:file
-   }
-  ];
+ renderFiles();
 
-  renderFiles();
+ updatePreview();
 
-  updatePreview();
+ showToast(
+  "HTML berjaya diimport",
+  file.name
+ );
 
-  showToast(
-   "✅ HTML berjaya diimport",
-   file.name
-  );
-
- }catch(error){
-
-  showToast(
-   "❌ Gagal",
-   "Fail HTML tidak dapat dibaca."
-  );
-
- }
-
- event.target.value="";
+ e.target.value="";
 
 };
 
 
-/* =====================================
-   LOAD JSZIP
-===================================== */
+/* =================================
+   JSZIP
+================================= */
 
-(function(){
+const zipScript=
+ document.createElement("script");
 
- const script=document.createElement("script");
+zipScript.src=
+ "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
 
- script.src=
-  "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
-
- script.onload=()=>{
-  console.log("JSZip loaded");
- };
-
- document.head.appendChild(script);
-
-})();
+document.head.appendChild(zipScript);
 
 
-/* =====================================
-   IMPORT ZIP
-===================================== */
+/* =================================
+   ZIP IMPORT
+================================= */
 
 $("uploadZipBtn").onclick=()=>{
  $("zipInput").click();
 };
 
 
-$("zipInput").onchange=async event=>{
+$("zipInput").onchange=async e=>{
 
- const file=event.target.files[0];
+ const file=e.target.files[0];
 
  if(file){
+
   await importZip(file);
+
  }
 
- event.target.value="";
+ e.target.value="";
 
 };
 
@@ -1438,48 +2061,41 @@ async function importZip(file){
  if(typeof JSZip==="undefined"){
 
   showToast(
-   "⚠ ZIP belum siap",
-   "Cuba semula selepas halaman selesai dimuat."
+   "ZIP belum siap",
+   "Cuba semula sebentar lagi."
   );
 
   return;
+
  }
 
  try{
 
-  showToast(
-   "📦 Membaca ZIP",
-   "Sedang mencari fail..."
-  );
-
   const zip=
    await JSZip.loadAsync(file);
-
-  const entries=
-   Object.values(zip.files)
-    .filter(item=>!item.dir);
 
   projectFiles=[];
 
   let htmlEntry=null;
 
-  for(const entry of entries){
+  for(
+   const entry of Object.values(zip.files)
+  ){
+
+   if(entry.dir)continue;
 
    const path=
     entry.name.replaceAll("\\","/");
 
    if(
-    path.startsWith("/")||
     path.split("/").includes("..")
-   ){
-    continue;
-   }
+   )continue;
 
    const blob=
     await entry.async("blob");
 
    projectFiles.push({
-    name:path.split("/").pop()||"file",
+    name:path.split("/").pop(),
     path,
     blob
    });
@@ -1489,10 +2105,7 @@ async function importZip(file){
     /\.html?$/i.test(path)
    ){
 
-    htmlEntry={
-     entry,
-     path
-    };
+    htmlEntry=entry;
 
    }
 
@@ -1503,23 +2116,20 @@ async function importZip(file){
   if(htmlEntry){
 
    editor.value=
-    await htmlEntry.entry.async("text");
+    await htmlEntry.async("text");
 
    updatePreview();
 
-   $("htmlStatus").textContent=
-    "HTML dikesan";
-
    showToast(
-    "✅ ZIP berjaya",
+    "ZIP berjaya",
     "Fail HTML telah dikesan."
    );
 
   }else{
 
    showToast(
-    "📦 ZIP dibaca",
-    "Tiada fail HTML dijumpai."
+    "ZIP dibaca",
+    "Tiada HTML dijumpai."
    );
 
   }
@@ -1529,7 +2139,7 @@ async function importZip(file){
   console.error(error);
 
   showToast(
-   "❌ ZIP gagal",
+   "ZIP gagal",
    "Fail ZIP tidak dapat dibaca."
   );
 
@@ -1538,9 +2148,9 @@ async function importZip(file){
 }
 
 
-/* =====================================
-   RENDER FILES
-===================================== */
+/* =================================
+   FILE LIST
+================================= */
 
 function renderFiles(){
 
@@ -1553,41 +2163,55 @@ function renderFiles(){
   list.innerHTML=
    `<div class="empty">
     Belum ada fail projek.
-    <br>
-    Import ZIP untuk melihat fail di dalamnya.
    </div>`;
-
-  $("zipStatus").textContent="0 fail";
 
   return;
 
  }
 
- $("zipStatus").textContent=
-  projectFiles.length+" fail";
-
  projectFiles.forEach(file=>{
 
-  const row=document.createElement("div");
+  const row=
+   document.createElement("div");
+
   row.className="file-row";
 
-  const icon=document.createElement("div");
+  const icon=
+   document.createElement("div");
+
   icon.className="file-icon";
-  icon.textContent=getFileIcon(file.name);
 
-  const name=document.createElement("div");
+  icon.textContent=
+   getFileIcon(file.name);
+
+  const name=
+   document.createElement("div");
+
   name.className="file-name";
-  name.textContent=file.path;
 
-  const button=document.createElement("button");
-  button.className="file-action";
-  button.textContent="Download";
+  name.textContent=
+   file.path;
 
-  button.onclick=()=>{
-   downloadBlob(file.blob,file.name);
+  const btn=
+   document.createElement("button");
+
+  btn.className="file-action";
+
+  btn.textContent="Download";
+
+  btn.onclick=()=>{
+   downloadBlob(
+    file.blob,
+    file.name
+   );
   };
 
-  row.append(icon,name,button);
+  row.append(
+   icon,
+   name,
+   btn
+  );
+
   list.appendChild(row);
 
  });
@@ -1595,113 +2219,74 @@ function renderFiles(){
 }
 
 
-/* =====================================
-   FILE ICON
-===================================== */
-
 function getFileIcon(name){
 
  const ext=
-  name.split(".").pop().toLowerCase();
+  name.split(".")
+  .pop()
+  .toLowerCase();
 
- if(["html","htm"].includes(ext))return"🌐";
- if(ext==="css")return"🎨";
- if(ext==="js")return"⚙️";
- if(["png","jpg","jpeg","webp","gif","svg"].includes(ext))return"🖼️";
- if(ext==="json")return"🧾";
+ if(["html","htm"].includes(ext))
+  return "🌐";
 
- return"📄";
+ if(ext==="css")
+  return "🎨";
 
-}
+ if(ext==="js")
+  return "⚙️";
 
+ if(
+  ["png","jpg","jpeg","webp","gif","svg"]
+  .includes(ext)
+ )
+  return "🖼️";
 
-/* =====================================
-   DOWNLOAD
-===================================== */
-
-function downloadBlob(blob,name){
-
- const url=
-  URL.createObjectURL(blob);
-
- const a=
-  document.createElement("a");
-
- a.href=url;
- a.download=name;
- a.style.display="none";
-
- document.body.appendChild(a);
-
- a.click();
- a.remove();
-
- setTimeout(()=>{
-  URL.revokeObjectURL(url);
- },10000);
+ return "📄";
 
 }
 
 
-/* =====================================
+/* =================================
    DOWNLOAD HTML
-===================================== */
+================================= */
 
 $("downloadHtmlBtn").onclick=()=>{
 
- const html=editor.value;
-
- if(!html.trim()){
+ if(!editor.value.trim()){
 
   showToast(
-   "⚠ Tiada HTML",
-   "Masukkan kod HTML dahulu."
+   "Tiada HTML",
+   "Masukkan HTML dahulu."
   );
 
   return;
+
  }
 
  downloadBlob(
   new Blob(
-   [html],
-   {type:"text/html;charset=utf-8"}
+   [editor.value],
+   {
+    type:"text/html;charset=utf-8"
+   }
   ),
   "index.html"
- );
-
- showToast(
-  "⬇ HTML dimuat turun",
-  "index.html telah disediakan."
  );
 
 };
 
 
-/* =====================================
+/* =================================
    DOWNLOAD ALL
-===================================== */
+================================= */
 
 $("downloadAllBtn").onclick=async()=>{
-
- if(
-  !projectFiles.length &&
-  !editor.value.trim()
- ){
-
-  showToast(
-   "⚠ Tiada fail",
-   "Tiada fail untuk dimuat turun."
-  );
-
-  return;
-
- }
 
  if(typeof JSZip==="undefined"){
 
   showToast(
-   "⚠ ZIP belum siap",
-   "Cuba semula sebentar lagi."
+   "ZIP belum siap",
+   "Cuba semula."
   );
 
   return;
@@ -1735,26 +2320,26 @@ $("downloadAllBtn").onclick=async()=>{
 
  downloadBlob(
   blob,
-  "html-app-project.zip"
+  "html-project.zip"
  );
 
  showToast(
-  "📦 ZIP siap",
+  "ZIP siap",
   "Semua fail telah dimasukkan."
  );
 
 };
 
 
-/* =====================================
+/* =================================
    CLEAR
-===================================== */
+================================= */
 
 $("clearBtn").onclick=()=>{
 
  if(
   !confirm(
-   "Kosongkan editor dan fail projek?"
+   "Kosongkan editor?"
   )
  )return;
 
@@ -1767,95 +2352,53 @@ $("clearBtn").onclick=()=>{
 };
 
 
-/* =====================================
-   EDITOR
-===================================== */
-
-editor.addEventListener(
- "input",
- updatePreview
-);
-
-
-editor.addEventListener(
- "keydown",
- event=>{
-
-  if(event.key==="Tab"){
-
-   event.preventDefault();
-
-   const start=editor.selectionStart;
-   const end=editor.selectionEnd;
-
-   editor.value=
-    editor.value.substring(0,start)+
-    "  "+
-    editor.value.substring(end);
-
-   editor.selectionStart=
-    editor.selectionEnd=
-    start+2;
-
-   updatePreview();
-
-  }
-
- }
-);
-
-
-/* =====================================
+/* =================================
    DEVICE
-===================================== */
+================================= */
 
 document
-.querySelectorAll(".device-btn[data-width]")
+.querySelectorAll(
+ ".device-btn[data-width]"
+)
 .forEach(button=>{
 
  button.onclick=()=>{
 
   document
-   .querySelectorAll(".device-btn[data-width]")
+   .querySelectorAll(
+    ".device-btn[data-width]"
+   )
    .forEach(item=>{
     item.classList.remove("active");
    });
 
   button.classList.add("active");
 
-  const width=
+  previewFrame.style.width=
    button.dataset.width;
 
-  previewFrame.style.width=width;
-
   previewFrame.style.margin=
-   width==="100%" ? "0":"0 auto";
+   button.dataset.width==="100%"
+   ?"0"
+   :"0 auto";
 
  };
 
 });
 
 
-/* =====================================
+/* =================================
    OPEN PREVIEW
-===================================== */
+================================= */
 
 $("openPreviewBtn").onclick=()=>{
-
- if(!editor.value.trim()){
-
-  showToast(
-   "⚠ Tiada HTML",
-   "Masukkan kod HTML dahulu."
-  );
-
-  return;
- }
 
  const blob=
   new Blob(
    [editor.value],
-   {type:"text/html"}
+   {
+    type:"text/html"
+   }
   );
 
  const url=
@@ -1867,16 +2410,12 @@ $("openPreviewBtn").onclick=()=>{
   "noopener"
  );
 
- setTimeout(()=>{
-  URL.revokeObjectURL(url);
- },60000);
-
 };
 
 
-/* =====================================
+/* =================================
    NAVIGATION
-===================================== */
+================================= */
 
 document
 .querySelectorAll(".nav button")
@@ -1886,56 +2425,30 @@ document
 
   document
    .querySelectorAll(".nav button")
-   .forEach(item=>{
-    item.classList.remove("active");
-   });
+   .forEach(x=>
+    x.classList.remove("active")
+   );
 
   button.classList.add("active");
 
   document
    .querySelectorAll(".section")
-   .forEach(section=>{
-    section.classList.remove("active");
-   });
+   .forEach(section=>
+    section.classList.remove("active")
+   );
 
-  $(button.dataset.section)
-   .classList.add("active");
-
-  if(
-   button.dataset.section==="builderSection"
-  ){
-   updateBuildPreview();
-  }
+  $(
+   button.dataset.section
+  ).classList.add("active");
 
  };
 
 });
 
 
-/* =====================================
-   BUILDER FORM
-===================================== */
-
-[
- "appName",
- "packageId",
- "appVersion",
- "platform",
- "minAndroid"
-].forEach(id=>{
-
- $(id).addEventListener(
-  "input",
-  updateBuildPreview
- );
-
- $(id).addEventListener(
-  "change",
-  updateBuildPreview
- );
-
-});
-
+/* =================================
+   BUILDER
+================================= */
 
 function sanitizePackageId(value){
 
@@ -1952,18 +2465,18 @@ function sanitizePackageId(value){
 function updateBuildPreview(){
 
  const name=
-  $("appName").value.trim()||
-  "My HTML App";
+  $("appName").value.trim()
+  ||"My HTML App";
 
  const packageId=
   sanitizePackageId(
    $("packageId").value
-  )||
-  "com.example.myhtmlapp";
+  )
+  ||"com.example.myhtmlapp";
 
  const version=
-  $("appVersion").value.trim()||
-  "1.0.0";
+  $("appVersion").value.trim()
+  ||"1.0.0";
 
  const platform=
   $("platform").value;
@@ -1971,13 +2484,21 @@ function updateBuildPreview(){
  const api=
   $("minAndroid").value;
 
- $("previewAppName").textContent=name;
- $("previewPackage").textContent=packageId;
- $("previewVersion").textContent=version;
+ $("previewAppName").textContent=
+  name;
+
+ $("previewPackage").textContent=
+  packageId;
+
+ $("previewVersion").textContent=
+  version;
 
  $("previewPlatform").textContent=
   platform==="android"
   ?"Android"
+  :
+  platform==="ios"
+  ?"iOS"
   :"Web App";
 
  $("previewAndroid").textContent=
@@ -1988,304 +2509,217 @@ function updateBuildPreview(){
 }
 
 
-$("packageId").addEventListener(
- "blur",
- ()=>{
-  $("packageId").value=
-   sanitizePackageId(
-    $("packageId").value
-   );
+[
+ "appName",
+ "packageId",
+ "appVersion",
+ "platform",
+ "minAndroid"
+]
+.forEach(id=>{
 
-  updateBuildPreview();
- }
-);
+ $(id).addEventListener(
+  "input",
+  updateBuildPreview
+ );
+
+ $(id).addEventListener(
+  "change",
+  updateBuildPreview
+ );
+
+});
 
 
-/* =====================================
+/* =================================
    ICON
-===================================== */
+================================= */
 
 $("uploadIconBtn").onclick=()=>{
  $("iconInput").click();
 };
 
 
-$("iconInput").onchange=event=>{
+$("iconInput").onchange=e=>{
 
- const file=event.target.files[0];
+ const file=e.target.files[0];
 
  if(!file)return;
 
- if(
-  ![
-   "image/png",
-   "image/jpeg",
-   "image/webp"
-  ].includes(file.type)
- ){
-
-  showToast(
-   "❌ Format tak disokong",
-   "Gunakan PNG, JPG atau WEBP."
-  );
-
-  return;
-
- }
-
- const reader=new FileReader();
+ const reader=
+  new FileReader();
 
  reader.onload=()=>{
 
   iconDataUrl=
    reader.result;
 
-  $("iconPreview").innerHTML=
-   `<img src="${iconDataUrl}" alt="Icon">`;
-
   $("largeIcon").innerHTML=
-   `<img src="${iconDataUrl}" alt="App icon">`;
+   `<img
+    src="${iconDataUrl}"
+    alt="App Icon">`;
 
  };
 
  reader.readAsDataURL(file);
 
- event.target.value="";
+ e.target.value="";
 
 };
 
 
-/* =====================================
-   GENERATE PROJECT
-===================================== */
+/* =================================
+   CREATE PROJECT
+================================= */
 
 $("generateBtn").onclick=async()=>{
-
- const name=
-  $("appName").value.trim()||
-  "My HTML App";
-
- const packageId=
-  sanitizePackageId(
-   $("packageId").value
-  )||
-  "com.example.myhtmlapp";
-
- const version=
-  $("appVersion").value.trim()||
-  "1.0.0";
-
- const platform=
-  $("platform").value;
-
- const minAndroid=
-  $("minAndroid").value;
-
 
  if(!editor.value.trim()){
 
   showToast(
-   "⚠ HTML diperlukan",
-   "Masukkan HTML dahulu sebelum bungkus."
+   "HTML diperlukan",
+   "Masukkan HTML dahulu."
   );
 
   return;
 
  }
 
+ const config={
 
- generatedProject={
-  name,
-  packageId,
-  version,
-  platform,
-  minAndroid,
-  html:editor.value,
-  icon:iconDataUrl||""
+  name:
+   $("appName").value.trim()
+   ||"My HTML App",
+
+  packageId:
+   sanitizePackageId(
+    $("packageId").value
+   )
+   ||"com.example.myhtmlapp",
+
+  version:
+   $("appVersion").value.trim()
+   ||"1.0.0",
+
+  platform:
+   $("platform").value,
+
+  minAndroid:
+   $("minAndroid").value,
+
+  html:
+   editor.value,
+
+  icon:
+   iconDataUrl
+
  };
 
-
- if(typeof JSZip==="undefined"){
-
-  showToast(
-   "⚠ ZIP belum siap",
-   "Cuba semula selepas halaman selesai dimuat."
-  );
-
-  return;
-
- }
-
+ generatedProject=config;
 
  const zip=
-  await createProjectZip(
-   generatedProject
-  );
-
+  await createProjectZip(config);
 
  const blob=
   await zip.generateAsync({
    type:"blob"
   });
 
-
- generatedProject.blob=blob;
-
+ generatedProject.blob=
+  blob;
 
  $("buildStatus").innerHTML=
   `<strong>✅ Projek berjaya dijana.</strong>
    <br>
-   Nama: ${escapeHTML(name)}
+   ${escapeHTML(config.name)}
    <br>
-   Platform: ${escapeHTML(
-    platform==="android"?"Android":"Web App"
-   )}
+   ${escapeHTML(config.packageId)}
    <br>
-   Versi: ${escapeHTML(version)}
-   <br>
-   Package ID: ${escapeHTML(packageId)}`;
+   ${escapeHTML(config.version)}`;
 
  showToast(
-  "✅ Projek dijana",
-  "Preview dan ZIP telah tersedia."
+  "Projek dijana",
+  "ZIP projek sudah tersedia."
  );
 
 };
 
 
-/* =====================================
-   CREATE PROJECT ZIP
-===================================== */
-
 async function createProjectZip(config){
 
  const zip=new JSZip();
-
-
- /* HTML */
 
  zip.file(
   "www/index.html",
   config.html
  );
 
-
- /* README */
-
- const readme=
-`HTML App Builder
-================
-
-App Name:
-${config.name}
-
-Package ID:
-${config.packageId}
-
-Version:
-${config.version}
-
-Platform:
-${config.platform}
-
-Minimum Android API:
-${config.minAndroid}
-
-Generated by HTML App Builder.
-
-Nota:
-Fail ini ialah struktur projek HTML.
-Ia bukan APK/AAB yang telah dibina.
-`;
-
-
  zip.file(
   "README.txt",
-  readme
+`HTML App Builder
+
+App Name: ${config.name}
+Package ID: ${config.packageId}
+Version: ${config.version}
+Platform: ${config.platform}
+Minimum Android API: ${config.minAndroid}
+
+Nota:
+Ini ialah struktur projek HTML.
+Ia bukan APK/AAB/IPA siap.
+`
  );
 
-
- /* CONFIG */
-
- const configJson=
+ zip.file(
+  "app-config.json",
   JSON.stringify(
    {
     appName:config.name,
     packageId:config.packageId,
     version:config.version,
     platform:config.platform,
-    minimumAndroidApi:Number(
-     config.minAndroid
-    )
+    minimumAndroidApi:
+     Number(config.minAndroid)
    },
-   null,
-   2
-  );
-
-
- zip.file(
-  "app-config.json",
-  configJson
- );
-
-
- /* ICON */
-
- if(config.icon){
-
-  try{
-
-   const base64=
-    config.icon.split(",")[1];
-
-   zip.file(
-    "assets/icon",
-    base64,
-    {base64:true}
-   );
-
-  }catch(error){
-
-   console.warn(
-    "Icon tidak dapat dimasukkan."
-   );
-
-  }
-
- }
-
-
- /* BASIC WEB MANIFEST */
-
- const manifest=
- {
-  name:config.name,
-  short_name:
-   config.name.substring(0,12),
-  start_url:"./www/index.html",
-  display:"standalone",
-  version:config.version
- };
-
-
- zip.file(
-  "www/manifest.json",
-  JSON.stringify(
-   manifest,
    null,
    2
   )
  );
 
+ zip.file(
+  "www/manifest.json",
+  JSON.stringify(
+   {
+    name:config.name,
+    short_name:
+     config.name.substring(0,12),
+    start_url:"./index.html",
+    display:"standalone"
+   },
+   null,
+   2
+  )
+ );
+
+ if(config.icon){
+
+  const base64=
+   config.icon.split(",")[1];
+
+  zip.file(
+   "assets/app-icon",
+   base64,
+   {
+    base64:true
+   }
+  );
+
+ }
 
  return zip;
 
 }
 
-
-/* =====================================
-   DOWNLOAD GENERATED PROJECT
-===================================== */
 
 $("downloadProjectBtn").onclick=async()=>{
 
@@ -2300,69 +2734,385 @@ $("downloadProjectBtn").onclick=async()=>{
   !generatedProject.blob
  ){
 
-  showToast(
-   "⚠ Projek belum dijana",
-   "Tekan Generate Projek dahulu."
-  );
-
   return;
 
  }
 
+ const safeName=
+  generatedProject.name
+   .toLowerCase()
+   .replace(/[^a-z0-9]+/g,"-");
+
  downloadBlob(
   generatedProject.blob,
-  makeFileName(
-   generatedProject.name
-  )+
-  "-project.zip"
- );
-
- showToast(
-  "⬇ ZIP dimuat turun",
-  "Projek telah disediakan."
+  safeName+"-project.zip"
  );
 
 };
 
 
-/* =====================================
-   HELPERS
-===================================== */
+/* =================================
+   ADMOB
+================================= */
 
-function makeFileName(name){
-
- return name
-  .trim()
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g,"-")
-  .replace(/^-+|-+$/g,"")||
-  "html-app";
-
-}
+const adFields=[
+ "banner",
+ "interstitial",
+ "rewarded",
+ "native"
+];
 
 
-function escapeHTML(value){
+function looksLikeAdMobId(value){
 
- return String(value)
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
+ return /^ca-app-pub-\d{16}~\d{10}$/.test(
+  value.trim()
+ );
 
 }
 
 
-/* =====================================
-   START
-===================================== */
+function looksLikeAdUnitId(value){
 
-editor.value=
- defaultHTML();
+ return /^ca-app-pub-\d{16}\/\d{10}$/.test(
+  value.trim()
+ );
+
+}
+
+
+function updateAdStatus(){
+
+ const appId=
+  $("admobAppId").value.trim();
+
+ if(!appId){
+
+  $("appIdStatus").textContent=
+   "Belum diisi";
+
+  $("appIdStatus").className=
+   "ad-status";
+
+ }else if(
+  looksLikeAdMobId(appId)
+ ){
+
+  $("appIdStatus").textContent=
+   "✓ Format nampak betul";
+
+  $("appIdStatus").className=
+   "ad-status valid";
+
+ }else{
+
+  $("appIdStatus").textContent=
+   "⚠ Format perlu disemak";
+
+  $("appIdStatus").className=
+   "ad-status invalid";
+
+ }
+
+
+ adFields.forEach(type=>{
+
+  const value=
+   $(
+    type+"Id"
+   ).value.trim();
+
+  const enabled=
+   $(
+    type+"Enabled"
+   ).checked;
+
+  const status=
+   $(
+    type+"Status"
+   );
+
+  if(!enabled){
+
+   status.textContent=
+    "Tidak aktif";
+
+   status.className=
+    "ad-status";
+
+  }else if(!value){
+
+   status.textContent=
+    "ID diperlukan";
+
+   status.className=
+    "ad-status invalid";
+
+  }else if(
+   looksLikeAdUnitId(value)
+  ){
+
+   status.textContent=
+    "✓ Format nampak betul";
+
+   status.className=
+    "ad-status valid";
+
+  }else{
+
+   status.textContent=
+    "⚠ Format perlu disemak";
+
+   status.className=
+    "ad-status invalid";
+
+  }
+
+ });
+
+ updateAdmobSummary();
+
+}
+
+
+function updateAdmobSummary(){
+
+ const platform=
+  $("admobPlatform").value;
+
+ const appId=
+  $("admobAppId").value.trim();
+
+ $("summaryPlatform").textContent=
+  platform==="android"
+  ?"Android"
+  :"iOS";
+
+ $("summaryAppId").textContent=
+  appId||"Belum diisi";
+
+
+ adFields.forEach(type=>{
+
+  const enabled=
+   $(
+    type+"Enabled"
+   ).checked;
+
+  const value=
+   $(
+    type+"Id"
+   ).value.trim();
+
+  $(
+   "summary"+
+   type.charAt(0).toUpperCase()+
+   type.slice(1)
+  ).textContent=
+   enabled
+   ?value||"Aktif — ID belum diisi"
+   :"Tidak aktif";
+
+ });
+
+}
+
+
+$("admobAppId").addEventListener(
+ "input",
+ updateAdStatus
+);
+
+
+$("admobPlatform").addEventListener(
+ "change",
+ updateAdStatus
+);
+
+
+adFields.forEach(type=>{
+
+ $(
+  type+"Id"
+ ).addEventListener(
+  "input",
+  updateAdStatus
+ );
+
+ $(
+  type+"Enabled"
+ ).addEventListener(
+  "change",
+  updateAdStatus
+ );
+
+});
+
+
+function getAdmobConfig(){
+
+ return {
+
+  platform:
+   $("admobPlatform").value,
+
+  appId:
+   $("admobAppId").value.trim(),
+
+  adUnits:{
+
+   banner:{
+    enabled:
+     $("bannerEnabled").checked,
+    id:
+     $("bannerId").value.trim()
+   },
+
+   interstitial:{
+    enabled:
+     $("interstitialEnabled").checked,
+    id:
+     $("interstitialId").value.trim()
+   },
+
+   rewarded:{
+    enabled:
+     $("rewardedEnabled").checked,
+    id:
+     $("rewardedId").value.trim()
+   },
+
+   native:{
+    enabled:
+     $("nativeEnabled").checked,
+    id:
+     $("nativeId").value.trim()
+   }
+
+  }
+
+ };
+
+}
+
+
+$("saveAdmobBtn").onclick=()=>{
+
+ const config=
+  getAdmobConfig();
+
+ localStorage.setItem(
+  "htmlAppBuilderAdMob",
+  JSON.stringify(
+   config
+  )
+ );
+
+ updateAdStatus();
+
+ showToast(
+  "AdMob disimpan",
+  "Setting telah disimpan pada peranti ini."
+ );
+
+};
+
+
+$("downloadAdmobBtn").onclick=()=>{
+
+ const config=
+  getAdmobConfig();
+
+ const blob=
+  new Blob(
+   [
+    JSON.stringify(
+     config,
+     null,
+     2
+    )
+   ],
+   {
+    type:"application/json"
+   }
+  );
+
+ downloadBlob(
+  blob,
+  "admob-config.json"
+ );
+
+ showToast(
+  "Config siap",
+  "Fail admob-config.json telah dimuat turun."
+ );
+
+};
+
+
+/* =================================
+   LOAD SAVED ADMOB
+================================= */
+
+try{
+
+ const saved=
+  localStorage.getItem(
+   "htmlAppBuilderAdMob"
+  );
+
+ if(saved){
+
+  const config=
+   JSON.parse(saved);
+
+  $("admobPlatform").value=
+   config.platform||"android";
+
+  $("admobAppId").value=
+   config.appId||"";
+
+  adFields.forEach(type=>{
+
+   const data=
+    config.adUnits?.[type];
+
+   if(data){
+
+    $(
+     type+"Enabled"
+    ).checked=
+     !!data.enabled;
+
+    $(
+     type+"Id"
+    ).value=
+     data.id||"";
+
+   }
+
+  });
+
+ }
+
+}catch(error){
+
+ console.warn(
+  "AdMob setting tidak dapat dimuat."
+ );
+
+}
+
+
+/* =================================
+   INITIAL
+================================= */
 
 updatePreview();
+
 updateBuildPreview();
-renderFiles();
+
+updateAdStatus();
 
 </script>
 
