@@ -28,7 +28,7 @@ jobs:
       - name: Create Capacitor project
         run: |
           mkdir -p app/www
-          cp index.html app/www/index.html
+          cp Index.html app/www/index.html
           cd app
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor-community/admob@8
