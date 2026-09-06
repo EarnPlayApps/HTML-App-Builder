@@ -4,15 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f5f7fb">
-<meta name="description" content="HTML App Builder - bina, edit dan preview HTML dengan mudah">
+<meta name="description" content="HTML App Builder - bina, edit, preview dan sediakan projek HTML">
 <title>HTML App Builder</title>
 
 <style>
 *{box-sizing:border-box}
-
-html{
- scroll-behavior:smooth
-}
 
 body{
  margin:0;
@@ -21,15 +17,8 @@ body{
  background:#f5f7fb
 }
 
-button,
-input,
-textarea{
- font:inherit
-}
-
-button{
- cursor:pointer
-}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
 
 .app{
  width:100%;
@@ -111,8 +100,7 @@ button{
 
 .hero h1{
  margin:0;
- font-size:30px;
- letter-spacing:-.5px
+ font-size:30px
 }
 
 .hero p{
@@ -139,6 +127,42 @@ button{
  font-weight:800
 }
 
+/* NAV */
+
+.nav{
+ display:flex;
+ gap:7px;
+ overflow:auto;
+ margin-bottom:14px
+}
+
+.nav button{
+ white-space:nowrap;
+ border:1px solid #d8deea;
+ background:#fff;
+ color:#59657a;
+ border-radius:11px;
+ padding:10px 14px;
+ font-size:11px;
+ font-weight:900
+}
+
+.nav button.active{
+ background:#356df3;
+ color:#fff;
+ border-color:#356df3
+}
+
+/* SECTIONS */
+
+.section{
+ display:none
+}
+
+.section.active{
+ display:block
+}
+
 /* TOOLBAR */
 
 .toolbar{
@@ -160,26 +184,23 @@ button{
  box-shadow:0 5px 15px #17203308
 }
 
-.btn:hover{
- background:#f7f9fc
-}
-
 .btn.primary{
  border:0;
  background:#356df3;
  color:#fff
 }
 
-.btn.primary:hover{
- background:#2e60dc
+.btn.success{
+ border:0;
+ background:#3c9b68;
+ color:#fff
 }
 
 .btn.danger{
  color:#c84646
 }
 
-#htmlInput,
-#zipInput{
+#htmlInput,#zipInput,#iconInput{
  display:none
 }
 
@@ -219,12 +240,6 @@ button{
  font-size:10px
 }
 
-/* EDITOR */
-
-.editor-wrap{
- position:relative
-}
-
 #editor{
  display:block;
  width:100%;
@@ -235,30 +250,15 @@ button{
  padding:18px;
  background:#fbfcfe;
  color:#202a3c;
- font-family:
-  "SFMono-Regular",
-  Consolas,
-  "Liberation Mono",
-  monospace;
+ font-family:Consolas,monospace;
  font-size:12px;
  line-height:1.65;
  tab-size:2
 }
 
-/* PREVIEW */
-
 .preview-wrap{
  background:#eef1f6;
  padding:14px
-}
-
-#previewFrame{
- width:100%;
- height:530px;
- display:block;
- border:1px solid #d8dee9;
- border-radius:13px;
- background:#fff
 }
 
 .preview-tools{
@@ -290,7 +290,16 @@ button{
  border-color:#bfd0fb
 }
 
-/* FILE AREA */
+#previewFrame{
+ width:100%;
+ height:530px;
+ display:block;
+ border:1px solid #d8dee9;
+ border-radius:13px;
+ background:#fff
+}
+
+/* FILES */
 
 .file-area{
  margin-top:16px;
@@ -362,6 +371,181 @@ button{
  font-size:11px
 }
 
+/* BUILDER */
+
+.builder{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:16px
+}
+
+.card{
+ background:#fff;
+ border:1px solid #dfe4ed;
+ border-radius:20px;
+ padding:19px;
+ box-shadow:0 12px 35px #1720330b
+}
+
+.card h2{
+ margin:0 0 6px;
+ font-size:17px
+}
+
+.card-desc{
+ margin:0 0 17px;
+ color:#7c8697;
+ font-size:11px;
+ line-height:1.5
+}
+
+.form-group{
+ margin-bottom:13px
+}
+
+.form-group label{
+ display:block;
+ margin-bottom:6px;
+ color:#59657a;
+ font-size:10px;
+ font-weight:900
+}
+
+.form-group input,
+.form-group select{
+ width:100%;
+ height:43px;
+ border:1px solid #d8deea;
+ border-radius:10px;
+ padding:0 12px;
+ outline:none;
+ background:#fbfcfe;
+ color:#172033
+}
+
+.form-group input:focus,
+.form-group select:focus{
+ border-color:#8daaf5;
+ background:#fff
+}
+
+.icon-box{
+ display:flex;
+ align-items:center;
+ gap:12px;
+ border:1px dashed #cfd7e5;
+ border-radius:12px;
+ padding:12px;
+ background:#fafbfd
+}
+
+.icon-preview{
+ width:55px;
+ height:55px;
+ border-radius:13px;
+ background:#edf2fa;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+ font-size:22px;
+ flex:none
+}
+
+.icon-preview img{
+ width:100%;
+ height:100%;
+ object-fit:cover
+}
+
+.builder-actions{
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ margin-top:17px
+}
+
+/* BUILD PREVIEW */
+
+.build-preview{
+ margin-top:16px;
+ background:#fff;
+ border:1px solid #dfe4ed;
+ border-radius:20px;
+ padding:19px;
+ box-shadow:0 12px 35px #1720330b
+}
+
+.build-preview h2{
+ margin:0 0 15px;
+ font-size:16px
+}
+
+.preview-app{
+ display:grid;
+ grid-template-columns:90px 1fr;
+ gap:15px;
+ align-items:center
+}
+
+.app-icon-large{
+ width:82px;
+ height:82px;
+ border-radius:20px;
+ background:#edf2fa;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+ font-size:30px
+}
+
+.app-icon-large img{
+ width:100%;
+ height:100%;
+ object-fit:cover
+}
+
+.app-name-large{
+ font-size:19px;
+ font-weight:900
+}
+
+.app-id{
+ margin-top:5px;
+ color:#7d8798;
+ font-size:10px;
+ word-break:break-all
+}
+
+.meta-grid{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px;
+ margin-top:17px
+}
+
+.meta{
+ padding:11px;
+ border-radius:10px;
+ background:#f5f7fb;
+ border:1px solid #e3e7ee
+}
+
+.meta span{
+ display:block;
+ color:#8a93a3;
+ font-size:8px;
+ font-weight:900;
+ text-transform:uppercase
+}
+
+.meta strong{
+ display:block;
+ margin-top:4px;
+ font-size:11px
+}
+
 /* INFO */
 
 .info-grid{
@@ -389,6 +573,19 @@ button{
  margin-top:5px;
  font-size:13px;
  font-weight:900
+}
+
+/* NOTICE */
+
+.notice{
+ padding:12px 14px;
+ border-radius:11px;
+ background:#f2f6ff;
+ border:1px solid #d8e4ff;
+ color:#52627d;
+ font-size:10px;
+ line-height:1.5;
+ margin-bottom:14px
 }
 
 /* TOAST */
@@ -432,7 +629,8 @@ button{
 
 @media(max-width:800px){
 
- .workspace{
+ .workspace,
+ .builder{
   grid-template-columns:1fr
  }
 
@@ -443,6 +641,10 @@ button{
 
  .hero h1{
   font-size:25px
+ }
+
+ .meta-grid{
+  grid-template-columns:1fr
  }
 
  .info-grid{
@@ -471,17 +673,21 @@ button{
   grid-template-columns:1fr 1fr
  }
 
- .btn{
-  width:100%
- }
-
  .toolbar .primary{
   grid-column:1/-1
  }
 
- #editor,
- #previewFrame{
-  height:380px
+ .btn{
+  width:100%
+ }
+
+ .preview-app{
+  grid-template-columns:1fr;
+  text-align:center
+ }
+
+ .app-icon-large{
+  margin:auto
  }
 
 }
@@ -492,26 +698,15 @@ button{
 
 <div class="app">
 
-<!-- HEADER -->
-
 <header class="header">
 
 <div class="brand">
 
-<div class="logo">
-🧩
-</div>
+<div class="logo">🧩</div>
 
 <div>
-
-<div class="brand-name">
-HTML App Builder
-</div>
-
-<div class="brand-sub">
-Build • Preview • Package • Publish
-</div>
-
+<div class="brand-name">HTML App Builder</div>
+<div class="brand-sub">Build • Preview • Package • Publish</div>
 </div>
 
 </div>
@@ -524,88 +719,74 @@ LOCAL BUILDER
 </header>
 
 
-<!-- HERO -->
-
 <section class="hero">
 
-<h1>
-Bina App HTML Dengan Mudah
-</h1>
+<h1>Bina App HTML Dengan Mudah</h1>
 
 <p>
-Tulis atau masukkan fail HTML, edit kod, lihat live preview
-dan sediakan projek untuk langkah seterusnya.
+Masukkan HTML, edit kod, lihat live preview dan sediakan
+konfigurasi projek untuk langkah seterusnya.
 </p>
 
 <div class="steps">
-
 <div class="step">1. HTML</div>
 <div class="step">2. Edit</div>
 <div class="step">3. Preview</div>
-<div class="step">4. ZIP</div>
-<div class="step">5. Bungkus</div>
-<div class="step">6. AdMob</div>
-
+<div class="step">4. Bungkus</div>
+<div class="step">5. AdMob</div>
+<div class="step">6. Publish</div>
 </div>
 
 </section>
 
 
-<!-- TOOLBAR -->
+<nav class="nav">
+
+<button class="active" data-section="editorSection">
+📝 Editor
+</button>
+
+<button data-section="builderSection">
+📦 Bungkus App
+</button>
+
+</nav>
+
+
+<!-- ================= EDITOR ================= -->
+
+<section
+id="editorSection"
+class="section active">
 
 <div class="toolbar">
 
-<button
-class="btn primary"
-id="newBtn">
+<button class="btn primary" id="newBtn">
 ＋ HTML Baru
 </button>
 
-<button
-class="btn"
-id="uploadHtmlBtn">
+<button class="btn" id="uploadHtmlBtn">
 📄 Import HTML
 </button>
 
-<button
-class="btn"
-id="uploadZipBtn">
+<button class="btn" id="uploadZipBtn">
 📦 Import ZIP
 </button>
 
-<button
-class="btn"
-id="downloadHtmlBtn">
+<button class="btn" id="downloadHtmlBtn">
 ⬇ Download HTML
 </button>
 
-<button
-class="btn danger"
-id="clearBtn">
+<button class="btn danger" id="clearBtn">
 🗑 Kosongkan
 </button>
 
 </div>
 
+<input type="file" id="htmlInput" accept=".html,.htm">
+<input type="file" id="zipInput" accept=".zip">
 
-<input
-type="file"
-id="htmlInput"
-accept=".html,.htm">
-
-
-<input
-type="file"
-id="zipInput"
-accept=".zip">
-
-
-<!-- WORKSPACE -->
-
-<section class="workspace">
-
-
-<!-- EDITOR -->
+<div class="workspace">
 
 <div class="panel">
 
@@ -615,15 +796,11 @@ accept=".zip">
 ✏️ HTML Editor
 </div>
 
-<div
-class="panel-small"
-id="editorInfo">
+<div class="panel-small" id="editorInfo">
 0 aksara
 </div>
 
 </div>
-
-<div class="editor-wrap">
 
 <textarea
 id="editor"
@@ -632,10 +809,6 @@ placeholder="Tulis atau paste kod HTML di sini..."></textarea>
 
 </div>
 
-</div>
-
-
-<!-- PREVIEW -->
 
 <div class="panel">
 
@@ -645,8 +818,7 @@ placeholder="Tulis atau paste kod HTML di sini..."></textarea>
 👁 Live Preview
 </div>
 
-<div
-class="panel-small">
+<div class="panel-small">
 Auto Update
 </div>
 
@@ -696,10 +868,8 @@ sandbox="allow-scripts allow-forms allow-modals allow-popups">
 
 </div>
 
-</section>
+</div>
 
-
-<!-- ZIP FILES -->
 
 <section class="file-area">
 
@@ -707,9 +877,7 @@ sandbox="allow-scripts allow-forms allow-modals allow-popups">
 📦 Fail Projek
 </div>
 
-<div
-class="file-list"
-id="fileList">
+<div class="file-list" id="fileList">
 
 <div class="empty">
 Belum ada fail projek.
@@ -719,50 +887,273 @@ Import ZIP untuk melihat fail di dalamnya.
 
 </div>
 
+<div class="toolbar" style="margin-top:12px;margin-bottom:0">
+
+<button
+class="btn"
+id="downloadAllBtn">
+⬇ Download Semua
+</button>
+
+</div>
+
 </section>
 
 
-<!-- INFO -->
-
-<section class="info-grid">
+<div class="info-grid">
 
 <div class="info">
-
-<div class="info-label">
-HTML
-</div>
-
-<div
-class="info-value"
-id="htmlStatus">
+<div class="info-label">HTML</div>
+<div class="info-value" id="htmlStatus">
 Belum dimasukkan
 </div>
-
 </div>
 
 <div class="info">
-
-<div class="info-label">
-Fail ZIP
-</div>
-
-<div
-class="info-value"
-id="zipStatus">
+<div class="info-label">Fail ZIP</div>
+<div class="info-value" id="zipStatus">
 0 fail
 </div>
-
 </div>
 
 <div class="info">
+<div class="info-label">Preview</div>
+<div class="info-value">
+Live
+</div>
+</div>
 
-<div class="info-label">
-Preview
+</div>
+
+</section>
+
+
+<!-- ================= BUILDER ================= -->
+
+<section
+id="builderSection"
+class="section">
+
+<div class="notice">
+
+<strong>Nota:</strong>
+Modul ini menyediakan struktur dan konfigurasi projek.
+Ia belum menghasilkan APK/AAB sebenar secara terus dalam browser.
+
+</div>
+
+
+<div class="builder">
+
+<div class="card">
+
+<h2>📱 Konfigurasi App</h2>
+
+<p class="card-desc">
+Masukkan maklumat asas aplikasi sebelum projek dibungkus.
+</p>
+
+
+<div class="form-group">
+
+<label>Nama App</label>
+
+<input
+id="appName"
+type="text"
+placeholder="Contoh: My Tools App"
+maxlength="50">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Package ID</label>
+
+<input
+id="packageId"
+type="text"
+placeholder="com.example.myapp"
+maxlength="100">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Versi App</label>
+
+<input
+id="appVersion"
+type="text"
+value="1.0.0"
+maxlength="20">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Platform</label>
+
+<select id="platform">
+
+<option value="android">
+Android
+</option>
+
+<option value="web">
+Web App
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Minimum Android</label>
+
+<select id="minAndroid">
+
+<option value="23">Android 6.0 (API 23)</option>
+<option value="24">Android 7.0 (API 24)</option>
+<option value="26">Android 8.0 (API 26)</option>
+<option value="28">Android 9 (API 28)</option>
+<option value="29">Android 10 (API 29)</option>
+<option value="31">Android 12 (API 31)</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Ikon App</label>
+
+<div class="icon-box">
+
+<div
+class="icon-preview"
+id="iconPreview">
+🧩
+</div>
+
+<div>
+
+<button
+class="btn"
+id="uploadIconBtn"
+type="button">
+Pilih Ikon
+</button>
+
+<div style="margin-top:5px;color:#8993a4;font-size:9px">
+PNG / JPG / WEBP
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<input
+type="file"
+id="iconInput"
+accept="image/png,image/jpeg,image/webp">
+
+
+<div class="builder-actions">
+
+<button
+class="btn primary"
+id="generateBtn">
+⚙ Generate Projek
+</button>
+
+<button
+class="btn success"
+id="downloadProjectBtn">
+⬇ Download ZIP
+</button>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔍 Ringkasan</h2>
+
+<p class="card-desc">
+Semak konfigurasi sebelum menjana projek.
+</p>
+
+<div class="preview-app">
+
+<div
+class="app-icon-large"
+id="largeIcon">
+🧩
+</div>
+
+<div>
+
+<div
+class="app-name-large"
+id="previewAppName">
+My HTML App
 </div>
 
 <div
-class="info-value">
-Live
+class="app-id"
+id="previewPackage">
+com.example.myhtmlapp
+</div>
+
+</div>
+
+</div>
+
+
+<div class="meta-grid">
+
+<div class="meta">
+<span>Versi</span>
+<strong id="previewVersion">1.0.0</strong>
+</div>
+
+<div class="meta">
+<span>Platform</span>
+<strong id="previewPlatform">Android</strong>
+</div>
+
+<div class="meta">
+<span>Minimum</span>
+<strong id="previewAndroid">API 23</strong>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="build-preview">
+
+<h2>📋 Status Projek</h2>
+
+<div
+id="buildStatus"
+class="notice"
+style="margin-bottom:0">
+Belum ada projek dijana.
 </div>
 
 </div>
@@ -772,22 +1163,13 @@ Live
 </div>
 
 
-<!-- TOAST -->
+<div class="toast" id="toast">
 
-<div
-class="toast"
-id="toast">
-
-<div
-class="toast-title"
-id="toastTitle">
+<div class="toast-title" id="toastTitle">
 Berjaya
 </div>
 
-<div
-class="toast-text"
-id="toastText">
-</div>
+<div class="toast-text" id="toastText"></div>
 
 </div>
 
@@ -795,31 +1177,29 @@ id="toastText">
 <script>
 "use strict";
 
-/* =========================
+
+/* =====================================
    STATE
-========================= */
+===================================== */
 
 let projectFiles=[];
-let currentHtml="";
+let iconDataUrl="";
+let generatedProject=null;
 
 
-/* =========================
+/* =====================================
    ELEMENTS
-========================= */
+===================================== */
 
-const $=id=>
- document.getElementById(id);
+const $=id=>document.getElementById(id);
 
-const editor=
- $("editor");
-
-const previewFrame=
- $("previewFrame");
+const editor=$("editor");
+const previewFrame=$("previewFrame");
 
 
-/* =========================
+/* =====================================
    TOAST
-========================= */
+===================================== */
 
 let toastTimer=null;
 
@@ -827,25 +1207,21 @@ function showToast(title,text){
 
  clearTimeout(toastTimer);
 
- $("toastTitle").textContent=
-  title;
-
- $("toastText").textContent=
-  text;
+ $("toastTitle").textContent=title;
+ $("toastText").textContent=text;
 
  $("toast").classList.add("show");
 
- toastTimer=
-  setTimeout(()=>{
-   $("toast").classList.remove("show");
-  },3200);
+ toastTimer=setTimeout(()=>{
+  $("toast").classList.remove("show");
+ },3200);
 
 }
 
 
-/* =========================
+/* =====================================
    DEFAULT HTML
-========================= */
+===================================== */
 
 function defaultHTML(){
 
@@ -877,10 +1253,6 @@ body{
  text-align:center;
 }
 
-h1{
- margin-top:0;
-}
-
 button{
  border:0;
  padding:12px 20px;
@@ -897,13 +1269,9 @@ button{
 
 <div class="card">
 
-<h1>
-Hello 👋
-</h1>
+<h1>Hello 👋</h1>
 
-<p>
-Ini ialah live preview HTML anda.
-</p>
+<p>Ini ialah live preview HTML anda.</p>
 
 <button onclick="alert('Berfungsi!')">
 Test Button
@@ -913,64 +1281,51 @@ Test Button
 
 </body>
 </html>`;
+
 }
 
 
-/* =========================
-   UPDATE PREVIEW
-========================= */
+/* =====================================
+   PREVIEW
+===================================== */
 
 let previewTimer=null;
 
 function updatePreview(){
 
- currentHtml=
-  editor.value;
-
  clearTimeout(previewTimer);
 
- previewTimer=
-  setTimeout(()=>{
+ previewTimer=setTimeout(()=>{
 
-   previewFrame.srcdoc=
-    currentHtml;
+  previewFrame.srcdoc=editor.value;
 
-  },120);
+ },100);
 
  updateEditorInfo();
 
 }
 
 
-/* =========================
-   EDITOR INFO
-========================= */
-
 function updateEditorInfo(){
 
- const length=
-  editor.value.length;
+ const length=editor.value.length;
 
  $("editorInfo").textContent=
-  length.toLocaleString("ms-MY")+
-  " aksara";
+  length.toLocaleString("ms-MY")+" aksara";
 
  $("htmlStatus").textContent=
-  length
-  ? "HTML tersedia"
-  : "Belum dimasukkan";
+  length ? "HTML tersedia":"Belum dimasukkan";
 
 }
 
 
-/* =========================
+/* =====================================
    NEW HTML
-========================= */
+===================================== */
 
 $("newBtn").onclick=()=>{
 
- editor.value=
-  defaultHTML();
+ editor.value=defaultHTML();
 
  projectFiles=[];
 
@@ -986,118 +1341,115 @@ $("newBtn").onclick=()=>{
 };
 
 
-/* =========================
+/* =====================================
    IMPORT HTML
-========================= */
+===================================== */
 
 $("uploadHtmlBtn").onclick=()=>{
-
  $("htmlInput").click();
+};
+
+
+$("htmlInput").onchange=async event=>{
+
+ const file=event.target.files[0];
+
+ if(!file)return;
+
+ try{
+
+  editor.value=await file.text();
+
+  projectFiles=[
+   {
+    name:file.name,
+    path:file.name,
+    blob:file
+   }
+  ];
+
+  renderFiles();
+
+  updatePreview();
+
+  showToast(
+   "✅ HTML berjaya diimport",
+   file.name
+  );
+
+ }catch(error){
+
+  showToast(
+   "❌ Gagal",
+   "Fail HTML tidak dapat dibaca."
+  );
+
+ }
+
+ event.target.value="";
 
 };
 
 
-$("htmlInput").onchange=
- async event=>{
+/* =====================================
+   LOAD JSZIP
+===================================== */
 
-  const file=
-   event.target.files[0];
+(function(){
 
-  if(!file){
-   return;
-  }
+ const script=document.createElement("script");
 
-  try{
+ script.src=
+  "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
 
-   const text=
-    await file.text();
+ script.onload=()=>{
+  console.log("JSZip loaded");
+ };
 
-   editor.value=
-    text;
+ document.head.appendChild(script);
 
-   projectFiles=[
-    {
-     name:file.name,
-     path:file.name,
-     blob:file
-    }
-   ];
-
-   renderFiles();
-
-   updatePreview();
-
-   showToast(
-    "✅ HTML berjaya diimport",
-    file.name
-   );
-
-  }catch(error){
-
-   showToast(
-    "❌ Gagal",
-    "Fail HTML tidak dapat dibaca."
-   );
-
-  }
-
-  event.target.value="";
-
-};
+})();
 
 
-/* =========================
+/* =====================================
    IMPORT ZIP
-========================= */
+===================================== */
 
 $("uploadZipBtn").onclick=()=>{
-
  $("zipInput").click();
-
 };
 
 
-$("zipInput").onchange=
- async event=>{
+$("zipInput").onchange=async event=>{
 
-  const file=
-   event.target.files[0];
+ const file=event.target.files[0];
 
-  if(!file){
-   return;
-  }
-
+ if(file){
   await importZip(file);
+ }
 
-  event.target.value="";
+ event.target.value="";
 
 };
 
-
-/* =========================
-   ZIP IMPORT
-========================= */
 
 async function importZip(file){
 
- if(
-  typeof JSZip==="undefined"
- ){
+ if(typeof JSZip==="undefined"){
 
   showToast(
-   "⚠ ZIP belum tersedia",
-   "Library ZIP sedang disediakan dalam versi seterusnya."
+   "⚠ ZIP belum siap",
+   "Cuba semula selepas halaman selesai dimuat."
   );
 
   return;
-
  }
 
  try{
 
   showToast(
    "📦 Membaca ZIP",
-   "Sedang mencari fail HTML..."
+   "Sedang mencari fail..."
   );
 
   const zip=
@@ -1105,59 +1457,36 @@ async function importZip(file){
 
   const entries=
    Object.values(zip.files)
-    .filter(
-     item=>!item.dir
-    );
-
-  if(
-   entries.length>500
-  ){
-
-   throw new Error(
-    "ZIP mempunyai terlalu banyak fail."
-   );
-
-  }
+    .filter(item=>!item.dir);
 
   projectFiles=[];
 
   let htmlEntry=null;
 
-  for(
-   const entry of entries
-  ){
+  for(const entry of entries){
 
    const path=
-    entry.name
-     .replaceAll("\\","/");
+    entry.name.replaceAll("\\","/");
 
    if(
     path.startsWith("/")||
     path.split("/").includes("..")
    ){
-
     continue;
-
    }
 
    const blob=
     await entry.async("blob");
 
    projectFiles.push({
-
-    name:
-     path.split("/").pop()||
-     "file",
-
+    name:path.split("/").pop()||"file",
     path,
-
     blob
-
    });
 
    if(
-    !htmlEntry&&
-    /\.(html?|HTML?)$/.test(path)
+    !htmlEntry &&
+    /\.html?$/i.test(path)
    ){
 
     htmlEntry={
@@ -1171,19 +1500,10 @@ async function importZip(file){
 
   renderFiles();
 
-  $("zipStatus").textContent=
-   projectFiles.length+
-   " fail";
-
   if(htmlEntry){
 
-   const html=
-    await htmlEntry.entry.async(
-     "text"
-    );
-
    editor.value=
-    html;
+    await htmlEntry.entry.async("text");
 
    updatePreview();
 
@@ -1191,8 +1511,8 @@ async function importZip(file){
     "HTML dikesan";
 
    showToast(
-    "✅ ZIP berjaya dibaca",
-    "HTML dijumpai dan dimasukkan ke editor."
+    "✅ ZIP berjaya",
+    "Fail HTML telah dikesan."
    );
 
   }else{
@@ -1210,8 +1530,7 @@ async function importZip(file){
 
   showToast(
    "❌ ZIP gagal",
-   error.message||
-   "ZIP tidak dapat dibaca."
+   "Fail ZIP tidak dapat dibaca."
   );
 
  }
@@ -1219,49 +1538,13 @@ async function importZip(file){
 }
 
 
-/* =========================
-   LOAD JSZIP
-========================= */
-
-(function loadZipLibrary(){
-
- const script=
-  document.createElement("script");
-
- script.src=
-  "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
-
- script.onload=()=>{
-
-  console.log(
-   "JSZip loaded"
-  );
-
- };
-
- script.onerror=()=>{
-
-  console.warn(
-   "JSZip gagal dimuat"
-  );
-
- };
-
- document.head.appendChild(
-  script
- );
-
-})();
-
-
-/* =========================
+/* =====================================
    RENDER FILES
-========================= */
+===================================== */
 
 function renderFiles(){
 
- const list=
-  $("fileList");
+ const list=$("fileList");
 
  list.innerHTML="";
 
@@ -1274,128 +1557,67 @@ function renderFiles(){
     Import ZIP untuk melihat fail di dalamnya.
    </div>`;
 
-  $("zipStatus").textContent=
-   "0 fail";
+  $("zipStatus").textContent="0 fail";
 
   return;
 
  }
 
  $("zipStatus").textContent=
-  projectFiles.length+
-  " fail";
+  projectFiles.length+" fail";
 
- projectFiles.forEach(
-  (file,index)=>{
+ projectFiles.forEach(file=>{
 
-   const row=
-    document.createElement("div");
+  const row=document.createElement("div");
+  row.className="file-row";
 
-   row.className=
-    "file-row";
+  const icon=document.createElement("div");
+  icon.className="file-icon";
+  icon.textContent=getFileIcon(file.name);
 
-   const icon=
-    document.createElement("div");
+  const name=document.createElement("div");
+  name.className="file-name";
+  name.textContent=file.path;
 
-   icon.className=
-    "file-icon";
+  const button=document.createElement("button");
+  button.className="file-action";
+  button.textContent="Download";
 
-   icon.textContent=
-    getFileIcon(file.name);
+  button.onclick=()=>{
+   downloadBlob(file.blob,file.name);
+  };
 
-   const name=
-    document.createElement("div");
+  row.append(icon,name,button);
+  list.appendChild(row);
 
-   name.className=
-    "file-name";
-
-   name.textContent=
-    file.path;
-
-   const button=
-    document.createElement("button");
-
-   button.className=
-    "file-action";
-
-   button.textContent=
-    "Download";
-
-   button.onclick=()=>{
-
-    downloadBlob(
-     file.blob,
-     file.name
-    );
-
-   };
-
-   row.append(
-    icon,
-    name,
-    button
-   );
-
-   list.appendChild(
-    row
-   );
-
-  }
- );
+ });
 
 }
 
 
-/* =========================
+/* =====================================
    FILE ICON
-========================= */
+===================================== */
 
 function getFileIcon(name){
 
  const ext=
-  name
-   .split(".")
-   .pop()
-   .toLowerCase();
+  name.split(".").pop().toLowerCase();
 
- if(
-  ["html","htm"].includes(ext)
- ){
-  return "🌐";
- }
+ if(["html","htm"].includes(ext))return"🌐";
+ if(ext==="css")return"🎨";
+ if(ext==="js")return"⚙️";
+ if(["png","jpg","jpeg","webp","gif","svg"].includes(ext))return"🖼️";
+ if(ext==="json")return"🧾";
 
- if(
-  ["css"].includes(ext)
- ){
-  return "🎨";
- }
-
- if(
-  ["js"].includes(ext)
- ){
-  return "⚙️";
- }
-
- if(
-  ["png","jpg","jpeg","webp","gif","svg"].includes(ext)
- ){
-  return "🖼️";
- }
-
- if(
-  ["json"].includes(ext)
- ){
-  return "🧾";
- }
-
- return "📄";
+ return"📄";
 
 }
 
 
-/* =========================
-   DOWNLOAD BLOB
-========================= */
+/* =====================================
+   DOWNLOAD
+===================================== */
 
 function downloadBlob(blob,name){
 
@@ -1405,19 +1627,13 @@ function downloadBlob(blob,name){
  const a=
   document.createElement("a");
 
- a.href=
-  url;
-
- a.download=
-  name;
-
- a.style.display=
-  "none";
+ a.href=url;
+ a.download=name;
+ a.style.display="none";
 
  document.body.appendChild(a);
 
  a.click();
-
  a.remove();
 
  setTimeout(()=>{
@@ -1427,14 +1643,13 @@ function downloadBlob(blob,name){
 }
 
 
-/* =========================
+/* =====================================
    DOWNLOAD HTML
-========================= */
+===================================== */
 
 $("downloadHtmlBtn").onclick=()=>{
 
- const html=
-  editor.value;
+ const html=editor.value;
 
  if(!html.trim()){
 
@@ -1444,64 +1659,117 @@ $("downloadHtmlBtn").onclick=()=>{
   );
 
   return;
-
  }
 
- const blob=
+ downloadBlob(
   new Blob(
    [html],
-   {
-    type:"text/html;charset=utf-8"
-   }
-  );
-
- downloadBlob(
-  blob,
+   {type:"text/html;charset=utf-8"}
+  ),
   "index.html"
  );
 
  showToast(
   "⬇ HTML dimuat turun",
-  "Fail index.html telah disediakan."
+  "index.html telah disediakan."
  );
 
 };
 
 
-/* =========================
+/* =====================================
+   DOWNLOAD ALL
+===================================== */
+
+$("downloadAllBtn").onclick=async()=>{
+
+ if(
+  !projectFiles.length &&
+  !editor.value.trim()
+ ){
+
+  showToast(
+   "⚠ Tiada fail",
+   "Tiada fail untuk dimuat turun."
+  );
+
+  return;
+
+ }
+
+ if(typeof JSZip==="undefined"){
+
+  showToast(
+   "⚠ ZIP belum siap",
+   "Cuba semula sebentar lagi."
+  );
+
+  return;
+
+ }
+
+ const zip=new JSZip();
+
+ if(editor.value.trim()){
+
+  zip.file(
+   "index.html",
+   editor.value
+  );
+
+ }
+
+ projectFiles.forEach(file=>{
+
+  zip.file(
+   file.path,
+   file.blob
+  );
+
+ });
+
+ const blob=
+  await zip.generateAsync({
+   type:"blob"
+  });
+
+ downloadBlob(
+  blob,
+  "html-app-project.zip"
+ );
+
+ showToast(
+  "📦 ZIP siap",
+  "Semua fail telah dimasukkan."
+ );
+
+};
+
+
+/* =====================================
    CLEAR
-========================= */
+===================================== */
 
 $("clearBtn").onclick=()=>{
 
- const ok=
-  confirm(
-   "Kosongkan editor dan senarai fail?"
-  );
-
- if(!ok){
-  return;
- }
+ if(
+  !confirm(
+   "Kosongkan editor dan fail projek?"
+  )
+ )return;
 
  editor.value="";
-
  projectFiles=[];
 
  renderFiles();
-
  updatePreview();
-
- showToast(
-  "🗑 Dikosongkan",
-  "Editor telah dikosongkan."
- );
 
 };
 
 
-/* =========================
-   EDITOR INPUT
-========================= */
+/* =====================================
+   EDITOR
+===================================== */
 
 editor.addEventListener(
  "input",
@@ -1509,39 +1777,25 @@ editor.addEventListener(
 );
 
 
-/* =========================
-   TAB SUPPORT
-========================= */
-
 editor.addEventListener(
  "keydown",
  event=>{
 
-  if(
-   event.key==="Tab"
-  ){
+  if(event.key==="Tab"){
 
    event.preventDefault();
 
-   const start=
-    editor.selectionStart;
-
-   const end=
-    editor.selectionEnd;
+   const start=editor.selectionStart;
+   const end=editor.selectionEnd;
 
    editor.value=
-    editor.value.substring(
-     0,
-     start
-    )+
+    editor.value.substring(0,start)+
     "  "+
-    editor.value.substring(
-     end
-    );
+    editor.value.substring(end);
 
    editor.selectionStart=
     editor.selectionEnd=
-     start+2;
+    start+2;
 
    updatePreview();
 
@@ -1551,57 +1805,44 @@ editor.addEventListener(
 );
 
 
-/* =========================
-   DEVICE PREVIEW
-========================= */
+/* =====================================
+   DEVICE
+===================================== */
 
 document
- .querySelectorAll(".device-btn[data-width]")
- .forEach(button=>{
+.querySelectorAll(".device-btn[data-width]")
+.forEach(button=>{
 
-  button.onclick=()=>{
+ button.onclick=()=>{
 
-   document
-    .querySelectorAll(
-     ".device-btn[data-width]"
-    )
-    .forEach(
-     item=>
-      item.classList.remove(
-       "active"
-      )
-    );
+  document
+   .querySelectorAll(".device-btn[data-width]")
+   .forEach(item=>{
+    item.classList.remove("active");
+   });
 
-   button.classList.add(
-    "active"
-   );
+  button.classList.add("active");
 
-   const width=
-    button.dataset.width;
+  const width=
+   button.dataset.width;
 
-   previewFrame.style.width=
-    width;
+  previewFrame.style.width=width;
 
-   previewFrame.style.margin=
-    width==="100%"
-    ?"0"
-    :"0 auto";
+  previewFrame.style.margin=
+   width==="100%" ? "0":"0 auto";
 
-  };
+ };
 
- });
+});
 
 
-/* =========================
+/* =====================================
    OPEN PREVIEW
-========================= */
+===================================== */
 
 $("openPreviewBtn").onclick=()=>{
 
- const html=
-  editor.value;
-
- if(!html.trim()){
+ if(!editor.value.trim()){
 
   showToast(
    "⚠ Tiada HTML",
@@ -1609,15 +1850,12 @@ $("openPreviewBtn").onclick=()=>{
   );
 
   return;
-
  }
 
  const blob=
   new Blob(
-   [html],
-   {
-    type:"text/html"
-   }
+   [editor.value],
+   {type:"text/html"}
   );
 
  const url=
@@ -1636,15 +1874,494 @@ $("openPreviewBtn").onclick=()=>{
 };
 
 
-/* =========================
+/* =====================================
+   NAVIGATION
+===================================== */
+
+document
+.querySelectorAll(".nav button")
+.forEach(button=>{
+
+ button.onclick=()=>{
+
+  document
+   .querySelectorAll(".nav button")
+   .forEach(item=>{
+    item.classList.remove("active");
+   });
+
+  button.classList.add("active");
+
+  document
+   .querySelectorAll(".section")
+   .forEach(section=>{
+    section.classList.remove("active");
+   });
+
+  $(button.dataset.section)
+   .classList.add("active");
+
+  if(
+   button.dataset.section==="builderSection"
+  ){
+   updateBuildPreview();
+  }
+
+ };
+
+});
+
+
+/* =====================================
+   BUILDER FORM
+===================================== */
+
+[
+ "appName",
+ "packageId",
+ "appVersion",
+ "platform",
+ "minAndroid"
+].forEach(id=>{
+
+ $(id).addEventListener(
+  "input",
+  updateBuildPreview
+ );
+
+ $(id).addEventListener(
+  "change",
+  updateBuildPreview
+ );
+
+});
+
+
+function sanitizePackageId(value){
+
+ return value
+  .toLowerCase()
+  .trim()
+  .replace(/[^a-z0-9._]/g,"")
+  .replace(/\.+/g,".")
+  .replace(/^\.+|\.+$/g,"");
+
+}
+
+
+function updateBuildPreview(){
+
+ const name=
+  $("appName").value.trim()||
+  "My HTML App";
+
+ const packageId=
+  sanitizePackageId(
+   $("packageId").value
+  )||
+  "com.example.myhtmlapp";
+
+ const version=
+  $("appVersion").value.trim()||
+  "1.0.0";
+
+ const platform=
+  $("platform").value;
+
+ const api=
+  $("minAndroid").value;
+
+ $("previewAppName").textContent=name;
+ $("previewPackage").textContent=packageId;
+ $("previewVersion").textContent=version;
+
+ $("previewPlatform").textContent=
+  platform==="android"
+  ?"Android"
+  :"Web App";
+
+ $("previewAndroid").textContent=
+  platform==="android"
+  ?"API "+api
+  :"N/A";
+
+}
+
+
+$("packageId").addEventListener(
+ "blur",
+ ()=>{
+  $("packageId").value=
+   sanitizePackageId(
+    $("packageId").value
+   );
+
+  updateBuildPreview();
+ }
+);
+
+
+/* =====================================
+   ICON
+===================================== */
+
+$("uploadIconBtn").onclick=()=>{
+ $("iconInput").click();
+};
+
+
+$("iconInput").onchange=event=>{
+
+ const file=event.target.files[0];
+
+ if(!file)return;
+
+ if(
+  ![
+   "image/png",
+   "image/jpeg",
+   "image/webp"
+  ].includes(file.type)
+ ){
+
+  showToast(
+   "❌ Format tak disokong",
+   "Gunakan PNG, JPG atau WEBP."
+  );
+
+  return;
+
+ }
+
+ const reader=new FileReader();
+
+ reader.onload=()=>{
+
+  iconDataUrl=
+   reader.result;
+
+  $("iconPreview").innerHTML=
+   `<img src="${iconDataUrl}" alt="Icon">`;
+
+  $("largeIcon").innerHTML=
+   `<img src="${iconDataUrl}" alt="App icon">`;
+
+ };
+
+ reader.readAsDataURL(file);
+
+ event.target.value="";
+
+};
+
+
+/* =====================================
+   GENERATE PROJECT
+===================================== */
+
+$("generateBtn").onclick=async()=>{
+
+ const name=
+  $("appName").value.trim()||
+  "My HTML App";
+
+ const packageId=
+  sanitizePackageId(
+   $("packageId").value
+  )||
+  "com.example.myhtmlapp";
+
+ const version=
+  $("appVersion").value.trim()||
+  "1.0.0";
+
+ const platform=
+  $("platform").value;
+
+ const minAndroid=
+  $("minAndroid").value;
+
+
+ if(!editor.value.trim()){
+
+  showToast(
+   "⚠ HTML diperlukan",
+   "Masukkan HTML dahulu sebelum bungkus."
+  );
+
+  return;
+
+ }
+
+
+ generatedProject={
+  name,
+  packageId,
+  version,
+  platform,
+  minAndroid,
+  html:editor.value,
+  icon:iconDataUrl||""
+ };
+
+
+ if(typeof JSZip==="undefined"){
+
+  showToast(
+   "⚠ ZIP belum siap",
+   "Cuba semula selepas halaman selesai dimuat."
+  );
+
+  return;
+
+ }
+
+
+ const zip=
+  await createProjectZip(
+   generatedProject
+  );
+
+
+ const blob=
+  await zip.generateAsync({
+   type:"blob"
+  });
+
+
+ generatedProject.blob=blob;
+
+
+ $("buildStatus").innerHTML=
+  `<strong>✅ Projek berjaya dijana.</strong>
+   <br>
+   Nama: ${escapeHTML(name)}
+   <br>
+   Platform: ${escapeHTML(
+    platform==="android"?"Android":"Web App"
+   )}
+   <br>
+   Versi: ${escapeHTML(version)}
+   <br>
+   Package ID: ${escapeHTML(packageId)}`;
+
+ showToast(
+  "✅ Projek dijana",
+  "Preview dan ZIP telah tersedia."
+ );
+
+};
+
+
+/* =====================================
+   CREATE PROJECT ZIP
+===================================== */
+
+async function createProjectZip(config){
+
+ const zip=new JSZip();
+
+
+ /* HTML */
+
+ zip.file(
+  "www/index.html",
+  config.html
+ );
+
+
+ /* README */
+
+ const readme=
+`HTML App Builder
+================
+
+App Name:
+${config.name}
+
+Package ID:
+${config.packageId}
+
+Version:
+${config.version}
+
+Platform:
+${config.platform}
+
+Minimum Android API:
+${config.minAndroid}
+
+Generated by HTML App Builder.
+
+Nota:
+Fail ini ialah struktur projek HTML.
+Ia bukan APK/AAB yang telah dibina.
+`;
+
+
+ zip.file(
+  "README.txt",
+  readme
+ );
+
+
+ /* CONFIG */
+
+ const configJson=
+  JSON.stringify(
+   {
+    appName:config.name,
+    packageId:config.packageId,
+    version:config.version,
+    platform:config.platform,
+    minimumAndroidApi:Number(
+     config.minAndroid
+    )
+   },
+   null,
+   2
+  );
+
+
+ zip.file(
+  "app-config.json",
+  configJson
+ );
+
+
+ /* ICON */
+
+ if(config.icon){
+
+  try{
+
+   const base64=
+    config.icon.split(",")[1];
+
+   zip.file(
+    "assets/icon",
+    base64,
+    {base64:true}
+   );
+
+  }catch(error){
+
+   console.warn(
+    "Icon tidak dapat dimasukkan."
+   );
+
+  }
+
+ }
+
+
+ /* BASIC WEB MANIFEST */
+
+ const manifest=
+ {
+  name:config.name,
+  short_name:
+   config.name.substring(0,12),
+  start_url:"./www/index.html",
+  display:"standalone",
+  version:config.version
+ };
+
+
+ zip.file(
+  "www/manifest.json",
+  JSON.stringify(
+   manifest,
+   null,
+   2
+  )
+ );
+
+
+ return zip;
+
+}
+
+
+/* =====================================
+   DOWNLOAD GENERATED PROJECT
+===================================== */
+
+$("downloadProjectBtn").onclick=async()=>{
+
+ if(!generatedProject){
+
+  await $("generateBtn").click();
+
+ }
+
+ if(
+  !generatedProject||
+  !generatedProject.blob
+ ){
+
+  showToast(
+   "⚠ Projek belum dijana",
+   "Tekan Generate Projek dahulu."
+  );
+
+  return;
+
+ }
+
+ downloadBlob(
+  generatedProject.blob,
+  makeFileName(
+   generatedProject.name
+  )+
+  "-project.zip"
+ );
+
+ showToast(
+  "⬇ ZIP dimuat turun",
+  "Projek telah disediakan."
+ );
+
+};
+
+
+/* =====================================
+   HELPERS
+===================================== */
+
+function makeFileName(name){
+
+ return name
+  .trim()
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g,"-")
+  .replace(/^-+|-+$/g,"")||
+  "html-app";
+
+}
+
+
+function escapeHTML(value){
+
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
+
+
+/* =====================================
    START
-========================= */
+===================================== */
 
 editor.value=
  defaultHTML();
 
 updatePreview();
-
+updateBuildPreview();
 renderFiles();
 
 </script>
