@@ -14,208 +14,108 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.9"
-
-      - name: Create Android project
+      - name: Create web project
         shell: bash
         run: |
           set -e
 
-          mkdir -p app/src/main/java/com/htmlapp/builder
-          mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/assets/public
+          mkdir -p app/www
 
-          cp Index.html app/src/main/assets/public/index.html
+          if [ -f "Index.html" ]; then
+            cp "Index.html" "app/www/index.html"
+          elif [ -f "index.html" ]; then
+            cp "index.html" "app/www/index.html"
+          else
+            echo "ERROR: Index.html tidak dijumpai."
+            exit 1
+          fi
 
-          cat > settings.gradle <<'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
+          echo "HTML app copied successfully."
 
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-
-          rootProject.name = "HTML-App-Builder"
-          include(":app")
-          EOF
-
-          cat > build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application' version '8.7.3' apply false
-          }
-          EOF
-
-          cat > gradle.properties <<'EOF'
-          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          android.useAndroidX=true
-          android.nonTransitiveRClass=true
-          EOF
-
-          cat > app/build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application'
-          }
-
-          android {
-              namespace "com.htmlapp.builder"
-              compileSdk 35
-
-              defaultConfig {
-                  applicationId "com.htmlapp.builder"
-                  minSdk 21
-                  targetSdk 35
-                  versionCode 1
-                  versionName "1.0.0"
-              }
-
-              buildTypes {
-                  debug {
-                      debuggable true
-                  }
-
-                  release {
-                      minifyEnabled false
-                      proguardFiles getDefaultProguardFile(
-                          'proguard-android-optimize.txt'
-                      ), 'proguard-rules.pro'
-                  }
-              }
-
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
-          }
-
-          dependencies {
-          }
-          EOF
-
-          touch app/proguard-rules.pro
-
-          cat > app/src/main/res/values/styles.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <style name="AppTheme"
-                  parent="android:style/Theme.Material.Light.NoActionBar">
-                  <item name="android:fontFamily">sans</item>
-              </style>
-          </resources>
-          EOF
-
-          cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-              <uses-permission android:name="android.permission.INTERNET" />
-              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-              <application
-                  android:allowBackup="true"
-                  android:label="HTML App Builder"
-                  android:supportsRtl="true"
-                  android:usesCleartextTraffic="true"
-                  android:theme="@style/AppTheme">
-
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true">
-
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-
-                  </activity>
-
-              </application>
-
-          </manifest>
-          EOF
-
-          cat > app/src/main/java/com/htmlapp/builder/MainActivity.java <<'EOF'
-          package com.htmlapp.builder;
-
-          import android.app.Activity;
-          import android.os.Bundle;
-          import android.webkit.WebSettings;
-          import android.webkit.WebView;
-          import android.widget.LinearLayout;
-
-          public class MainActivity extends Activity {
-
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-
-                  LinearLayout root = new LinearLayout(this);
-                  root.setOrientation(LinearLayout.VERTICAL);
-
-                  WebView webView = new WebView(this);
-
-                  WebSettings settings = webView.getSettings();
-                  settings.setJavaScriptEnabled(true);
-                  settings.setDomStorageEnabled(true);
-                  settings.setAllowFileAccess(true);
-                  settings.setAllowContentAccess(true);
-                  settings.setBuiltInZoomControls(false);
-                  settings.setDisplayZoomControls(false);
-
-                  webView.loadUrl(
-                      "file:///android_asset/public/index.html"
-                  );
-
-                  root.addView(
-                      webView,
-                      new LinearLayout.LayoutParams(
-                          -1,
-                          -1
-                      )
-                  );
-
-                  setContentView(root);
-              }
-          }
-          EOF
-
-      - name: Build APK
+      - name: Install Capacitor
+        working-directory: app
         shell: bash
         run: |
           set -e
 
-          gradle assembleDebug --stacktrace --no-daemon
+          npm init -y
 
-      - name: Find APK
+          npm install \
+            @capacitor/core@8 \
+            @capacitor/cli@8 \
+            @capacitor/android@8
+
+      - name: Initialize Capacitor
+        working-directory: app
         shell: bash
         run: |
           set -e
 
-          find app/build/outputs -type f -name "*.apk" -print
+          npx cap init \
+            "HTML App Builder" \
+            "com.earnplayapps.htmlappbuilder" \
+            --web-dir www
+
+      - name: Add Android platform
+        working-directory: app
+        shell: bash
+        run: |
+          set -e
+
+          npx cap add android
+
+      - name: Sync Android
+        working-directory: app
+        shell: bash
+        run: |
+          set -e
+
+          npx cap sync android
+
+      - name: Build Debug APK
+        working-directory: app/android
+        shell: bash
+        run: |
+          set -e
+
+          chmod +x gradlew
+
+          ./gradlew assembleDebug \
+            --stacktrace \
+            --no-daemon
+
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -e
+
+          APK="app/android/app/build/outputs/apk/debug/app-debug.apk"
+
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: APK tidak berjaya dihasilkan."
+            exit 1
+          fi
+
+          echo "APK berjaya dihasilkan:"
+          ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HTML-App-Builder-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
