@@ -27,81 +27,136 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+          cache: gradle
 
-      - name: Create web project
+      - name: Create Capacitor project
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
+          rm -rf app
           mkdir -p app/www
 
-          if [ -f "Index.html" ]; then
-            cp "Index.html" "app/www/index.html"
-          elif [ -f "index.html" ]; then
-            cp "index.html" "app/www/index.html"
-          else
-            echo "ERROR: Index.html tidak dijumpai."
-            exit 1
-          fi
+          cp "Index.html" "app/www/index.html"
 
-          echo "HTML app copied successfully."
+          cat > app/package.json <<'EOF'
+          {
+            "name": "html-app-builder",
+            "private": true,
+            "version": "1.0.0",
+            "scripts": {
+              "build": "echo no-web-build"
+            },
+            "dependencies": {
+              "@capacitor/android": "8.0.0",
+              "@capacitor/core": "8.0.0"
+            },
+            "devDependencies": {
+              "@capacitor/cli": "8.0.0"
+            }
+          }
+          EOF
 
-      - name: Install Capacitor
+      - name: Install dependencies
         working-directory: app
         shell: bash
         run: |
-          set -e
-
-          npm init -y
-
-          npm install \
-            @capacitor/core@8 \
-            @capacitor/cli@8 \
-            @capacitor/android@8
+          set -euo pipefail
+          npm install
 
       - name: Initialize Capacitor
         working-directory: app
         shell: bash
         run: |
-          set -e
-
+          set -euo pipefail
           npx cap init \
             "HTML App Builder" \
             "com.earnplayapps.htmlappbuilder" \
             --web-dir www
 
-      - name: Add Android platform
+      - name: Add Android
         working-directory: app
         shell: bash
         run: |
-          set -e
-
+          set -euo pipefail
           npx cap add android
 
-      - name: Sync Android
-        working-directory: app
-        shell: bash
-        run: |
-          set -e
-
-          npx cap sync android
-
-      - name: Build Debug APK
+      - name: Configure Android SDK
         working-directory: app/android
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          files = list(Path(".").rglob("*.gradle"))
+          files += list(Path(".").rglob("*.gradle.kts"))
+
+          for path in files:
+              text = path.read_text(encoding="utf-8")
+
+              text = re.sub(
+                  r'minSdk(?:Version)?\s*(?:=)?\s*\d+',
+                  'minSdk 23',
+                  text
+              )
+
+              text = re.sub(
+                  r'targetSdk(?:Version)?\s*(?:=)?\s*\d+',
+                  'targetSdk 35',
+                  text
+              )
+
+              text = re.sub(
+                  r'compileSdk(?:Version)?\s*(?:=)?\s*\d+',
+                  'compileSdk 35',
+                  text
+              )
+
+              path.write_text(text, encoding="utf-8")
+
+          for path in files:
+              text = path.read_text(encoding="utf-8")
+
+              if re.search(
+                  r'minSdk(?:Version)?\s*(?:=)?\s*8\b',
+                  text,
+                  re.IGNORECASE
+              ):
+                  raise SystemExit(
+                      f"ERROR: Android API 8 masih terdapat dalam {path}"
+                  )
+
+          print("Android SDK configuration checked successfully.")
+          PY
+
+      - name: Sync Capacitor
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx cap sync android
+
+      - name: Build APK
+        working-directory: app/android
+        shell: bash
+        run: |
+          set -euo pipefail
 
           chmod +x gradlew
 
-          ./gradlew assembleDebug \
+          ./gradlew \
+            clean \
+            assembleDebug \
             --stacktrace \
             --no-daemon
 
       - name: Verify APK
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           APK="app/android/app/build/outputs/apk/debug/app-debug.apk"
 
@@ -110,7 +165,15 @@ jobs:
             exit 1
           fi
 
-          echo "APK berjaya dihasilkan:"
+          if [ ! -s "$APK" ]; then
+            echo "ERROR: APK kosong."
+            exit 1
+          fi
+
+          echo "======================================"
+          echo "APK BERJAYA DIHASILKAN"
+          echo "======================================"
+
           ls -lh "$APK"
 
       - name: Upload APK
