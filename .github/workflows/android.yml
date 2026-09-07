@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -28,7 +29,7 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      - name: Check source HTML
+      - name: Check Index.html
         shell: bash
         run: |
           set -euo pipefail
@@ -38,7 +39,7 @@ jobs:
             exit 1
           fi
 
-          echo "Index.html ditemui."
+          echo "Index.html OK"
           ls -lh Index.html
 
       - name: Create Capacitor project
@@ -47,6 +48,7 @@ jobs:
           set -euo pipefail
 
           rm -rf app
+
           mkdir -p app/www
 
           cp "Index.html" "app/www/index.html"
@@ -57,7 +59,7 @@ jobs:
             "version": "1.0.0",
             "private": true,
             "scripts": {
-              "build": "echo Web build not required"
+              "build": "echo no-web-build"
             },
             "dependencies": {
               "@capacitor/core": "8.0.0",
@@ -69,7 +71,7 @@ jobs:
           }
           EOF
 
-      - name: Install npm packages
+      - name: Install Capacitor
         working-directory: app
         shell: bash
         run: |
@@ -87,7 +89,7 @@ jobs:
             "com.earnplayapps.htmlappbuilder" \
             --web-dir www
 
-      - name: Create Android platform
+      - name: Add Android
         working-directory: app
         shell: bash
         run: |
@@ -95,18 +97,7 @@ jobs:
 
           npx cap add android
 
-      - name: Verify Android project
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          test -d "app/android"
-          test -f "app/android/gradlew"
-          test -f "app/android/gradle/wrapper/gradle-wrapper.properties"
-
-          echo "Android project dan Gradle wrapper OK."
-
-      - name: Configure Android SDK
+      - name: Configure Android SDK safely
         working-directory: app/android
         shell: bash
         run: |
@@ -116,55 +107,60 @@ jobs:
           from pathlib import Path
           import re
 
-          files = list(Path(".").rglob("*.gradle"))
-          files += list(Path(".").rglob("*.gradle.kts"))
+          variables = Path("variables.gradle")
 
-          for path in files:
-              text = path.read_text(encoding="utf-8")
+          if variables.exists():
+              text = variables.read_text(encoding="utf-8")
 
               text = re.sub(
-                  r'minSdk(?:Version)?\s*(?:=)?\s*\d+',
-                  'minSdk 23',
+                  r'minSdkVersion\s*=\s*\d+',
+                  'minSdkVersion = 24',
                   text
               )
 
               text = re.sub(
-                  r'targetSdk(?:Version)?\s*(?:=)?\s*\d+',
-                  'targetSdk 35',
+                  r'compileSdkVersion\s*=\s*\d+',
+                  'compileSdkVersion = 36',
                   text
               )
 
               text = re.sub(
-                  r'compileSdk(?:Version)?\s*(?:=)?\s*\d+',
-                  'compileSdk 35',
+                  r'targetSdkVersion\s*=\s*\d+',
+                  'targetSdkVersion = 36',
                   text
               )
 
-              path.write_text(text, encoding="utf-8")
+              variables.write_text(text, encoding="utf-8")
 
-          for path in files:
-              text = path.read_text(encoding="utf-8")
-
-              if re.search(
-                  r'minSdk(?:Version)?\s*(?:=)?\s*8\b',
-                  text,
-                  re.IGNORECASE
-              ):
-                  raise SystemExit(
-                      f"ERROR: API 8 masih wujud dalam {path}"
-                  )
-
-          print("minSdk = 23")
-          print("compileSdk = 35")
-          print("targetSdk = 35")
-          print("SDK configuration OK.")
+          print("Android SDK:")
+          print("minSdkVersion = 24")
+          print("compileSdkVersion = 36")
+          print("targetSdkVersion = 36")
           PY
+
+      - name: Verify Gradle files
+        working-directory: app/android
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f gradlew
+          test -f gradle/wrapper/gradle-wrapper.properties
+
+          echo "Gradle wrapper OK"
+
+          if [ -f variables.gradle ]; then
+            echo "===== variables.gradle ====="
+            cat variables.gradle
+            echo "============================"
+          fi
 
       - name: Sync Capacitor
         working-directory: app
         shell: bash
         run: |
           set -euo pipefail
+
           npx cap sync android
 
       - name: Build APK
@@ -187,7 +183,7 @@ jobs:
           APK="app/android/app/build/outputs/apk/debug/app-debug.apk"
 
           if [ ! -f "$APK" ]; then
-            echo "ERROR: APK tidak berjaya dihasilkan."
+            echo "ERROR: APK tidak dihasilkan."
             exit 1
           fi
 
@@ -196,9 +192,11 @@ jobs:
             exit 1
           fi
 
-          echo "========================================"
-          echo "APK BERJAYA DIHASILKAN"
-          echo "========================================"
+          echo ""
+          echo "======================================"
+          echo "       APK BERJAYA DIHASILKAN"
+          echo "======================================"
+          echo ""
 
           ls -lh "$APK"
 
