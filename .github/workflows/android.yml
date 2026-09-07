@@ -20,14 +20,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22"
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: "temurin"
           java-version: "21"
-          cache: gradle
+
+      - name: Check source HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -f "Index.html" ]; then
+            echo "ERROR: Index.html tidak ditemui."
+            exit 1
+          fi
+
+          echo "Index.html ditemui."
+          ls -lh Index.html
 
       - name: Create Capacitor project
         shell: bash
@@ -42,14 +54,14 @@ jobs:
           cat > app/package.json <<'EOF'
           {
             "name": "html-app-builder",
-            "private": true,
             "version": "1.0.0",
+            "private": true,
             "scripts": {
-              "build": "echo no-web-build"
+              "build": "echo Web build not required"
             },
             "dependencies": {
-              "@capacitor/android": "8.0.0",
-              "@capacitor/core": "8.0.0"
+              "@capacitor/core": "8.0.0",
+              "@capacitor/android": "8.0.0"
             },
             "devDependencies": {
               "@capacitor/cli": "8.0.0"
@@ -57,7 +69,7 @@ jobs:
           }
           EOF
 
-      - name: Install dependencies
+      - name: Install npm packages
         working-directory: app
         shell: bash
         run: |
@@ -69,17 +81,30 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           npx cap init \
             "HTML App Builder" \
             "com.earnplayapps.htmlappbuilder" \
             --web-dir www
 
-      - name: Add Android
+      - name: Create Android platform
         working-directory: app
         shell: bash
         run: |
           set -euo pipefail
+
           npx cap add android
+
+      - name: Verify Android project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -d "app/android"
+          test -f "app/android/gradlew"
+          test -f "app/android/gradle/wrapper/gradle-wrapper.properties"
+
+          echo "Android project dan Gradle wrapper OK."
 
       - name: Configure Android SDK
         working-directory: app/android
@@ -126,10 +151,13 @@ jobs:
                   re.IGNORECASE
               ):
                   raise SystemExit(
-                      f"ERROR: Android API 8 masih terdapat dalam {path}"
+                      f"ERROR: API 8 masih wujud dalam {path}"
                   )
 
-          print("Android SDK configuration checked successfully.")
+          print("minSdk = 23")
+          print("compileSdk = 35")
+          print("targetSdk = 35")
+          print("SDK configuration OK.")
           PY
 
       - name: Sync Capacitor
@@ -147,9 +175,7 @@ jobs:
 
           chmod +x gradlew
 
-          ./gradlew \
-            clean \
-            assembleDebug \
+          ./gradlew clean assembleDebug \
             --stacktrace \
             --no-daemon
 
@@ -170,9 +196,9 @@ jobs:
             exit 1
           fi
 
-          echo "======================================"
+          echo "========================================"
           echo "APK BERJAYA DIHASILKAN"
-          echo "======================================"
+          echo "========================================"
 
           ls -lh "$APK"
 
