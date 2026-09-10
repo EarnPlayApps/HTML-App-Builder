@@ -94,13 +94,15 @@ jobs:
           x.mkdir(parents=True,exist_ok=True)
           (x/'file_paths.xml').write_text('<?xml version="1.0" encoding="utf-8"?><paths xmlns:android="http://schemas.android.com/apk/res/android"><cache-path name="shared" path="."/></paths>')
 
-          # Capacitor creates its own MainActivity. Remove every generated copy first,
-          # then install exactly one bridge activity under the matching debug package.
+          # Remove the generated Capacitor activity and install exactly one bridge activity
+          # at the filesystem path matching its debug Java package.
           for f in Path('app/src/main/java').rglob('MainActivity.java'):
               f.unlink()
           dst=Path('app/src/main/java/com/apkstudio/allconvert/debug/MainActivity.java')
           dst.parent.mkdir(parents=True,exist_ok=True)
-          dst.write_text(Path('../../native-bridge/MainActivity.java').read_text().replace('package com.apkstudio.allconvert;','package com.apkstudio.allconvert.debug;').replace('com.apkstudio.allconvert.fileprovider','com.apkstudio.allconvert.debug.fileprovider'))
+          src=Path('../../native-bridge/MainActivity.java')
+          code=src.read_text().replace('package com.apkstudio.allconvert;','package com.apkstudio.allconvert.debug;').replace('com.apkstudio.allconvert.fileprovider','com.apkstudio.allconvert.debug.fileprovider')
+          dst.write_text(code)
           PY
           chmod +x gradlew
           ./gradlew clean assembleDebug --stacktrace --no-daemon
