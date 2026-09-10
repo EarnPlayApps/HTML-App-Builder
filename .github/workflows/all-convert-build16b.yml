@@ -1,79 +1,13 @@
-name: All Convert APK #16 Retry
+name: All Convert APK #16 duplicate disabled
 
-on: [push, workflow_dispatch]
+on:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  disabled:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: gradle
-      - name: Prepare Android
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf app
-          mkdir -p app/www
-          cp Index.html app/www/index.html
-          [ -d www-source ] && cp -R www-source/. app/www/ || true
-          cat > app/package.json <<'JSON'
-          {"name":"all-convert-apk","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"8.0.0","@capacitor/android":"8.0.0"},"devDependencies":{"@capacitor/cli":"8.0.0"}}
-          JSON
-          cd app
-          npm install
-          npx cap init "All Convert" "com.apkstudio.allconvert" --web-dir www
-          npx cap add android
-          npx cap sync android
-          cd android
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('app/build.gradle')
-          t=p.read_text()
-          if 'play-services-ads:25.4.0' not in t:
-              t=t.replace('dependencies {', 'dependencies {\n    implementation \'com.google.android.gms:play-services-ads:25.4.0\'', 1)
-          p.write_text(t)
-          m=Path('app/src/main/AndroidManifest.xml')
-          s=m.read_text()
-          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
-              i=s.find('>', s.find('<application'))
-              s=s[:i+1]+'\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'+s[i+1:]
-          m.write_text(s)
-          a=Path('app/src/main/java/com/apkstudio/allconvert/MainActivity.java')
-          a.parent.mkdir(parents=True,exist_ok=True)
-          a.write_text('''package com.apkstudio.allconvert;\n\nimport android.os.Bundle;\nimport android.view.ViewGroup;\nimport android.widget.LinearLayout;\nimport com.getcapacitor.BridgeActivity;\nimport com.google.android.gms.ads.AdRequest;\nimport com.google.android.gms.ads.AdSize;\nimport com.google.android.gms.ads.AdView;\nimport com.google.android.gms.ads.MobileAds;\n\npublic class MainActivity extends BridgeActivity {\n @Override public void onCreate(Bundle savedInstanceState) {\n  super.onCreate(savedInstanceState);\n  MobileAds.initialize(this, status -> {});\n  android.webkit.WebView web=getBridge().getWebView();\n  ViewGroup old=(ViewGroup)web.getParent();\n  if(old!=null) old.removeView(web);\n  LinearLayout root=new LinearLayout(this);\n  root.setOrientation(LinearLayout.VERTICAL);\n  root.setLayoutParams(new ViewGroup.LayoutParams(-1,-1));\n  root.addView(web,new LinearLayout.LayoutParams(-1,0,1f));\n  AdView ad=new AdView(this);\n  ad.setAdUnitId("ca-app-pub-9940728659432865/7572128943");\n  int w=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);\n  ad.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this,w));\n  root.addView(ad,new LinearLayout.LayoutParams(-1,-2));\n  setContentView(root);\n  ad.loadAd(new AdRequest.Builder().build());\n }\n}\n''')
-          v=Path('variables.gradle')
-          if v.exists():
-              x=v.read_text().replace('minSdkVersion = 22','minSdkVersion = 23')
-              v.write_text(x)
-          PY
-          chmod +x gradlew
-          ./gradlew clean assembleDebug --stacktrace --no-daemon
-      - name: Verify and upload APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          APK=$(find app/android -type f -path '*/build/outputs/apk/debug/*.apk' | head -1)
-          test -n "$APK"
-          cp "$APK" app-debug.apk
-          sha256sum app-debug.apk > apk.sha256
-          unzip -t app-debug.apk >/dev/null
-          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --verbose app-debug.apk
-      - uses: actions/upload-artifact@v4
-        with:
-          name: All-Convert-APK-build-16
-          path: |
-            app-debug.apk
-            apk.sha256
-          if-no-files-found: error
-          retention-days: 14
+      - run: echo "Duplicate workflow disabled; use all-convert-build16.yml"
