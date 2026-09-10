@@ -33,9 +33,12 @@ jobs:
           curl -fsSL https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js -o app/www/vendor/mammoth.browser.min.js
           curl -fsSL https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js -o app/www/vendor/jszip.min.js
           curl -fsSL https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js -o app/www/vendor/tesseract.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs -o app/www/vendor/pdf.mjs
+          curl -fsSL https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs -o app/www/vendor/pdf.worker.mjs
           cp native-bridge/ac-fix.html app/ac-fix.html
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p=Path('app/www/index.html')
           s=p.read_text()
           reps={
@@ -43,14 +46,45 @@ jobs:
             'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js':'vendor/html2canvas.min.js',
             'https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js':'vendor/mammoth.browser.min.js',
             'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js':'vendor/jszip.min.js',
-            'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js':'vendor/tesseract.min.js'}
+            'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js':'vendor/tesseract.min.js',
+            'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs':'vendor/pdf.mjs',
+            'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs':'vendor/pdf.worker.mjs'}
           for a,b in reps.items(): s=s.replace(a,b)
+
+          # Repair the CSV escaping helper if an earlier edit introduced a literal
+          # line break inside the JavaScript regular expression.
+          fixed_csv='function csvEscape(v){v=String(v??"");return /[",\\r\\n]/.test(v)?\'"\'+v.replace(/"/g,\'""\')+\'"\':v}'
+          s=re.sub(r'function csvEscape\(v\)\{.*?\}\nfunction csvToJSON', fixed_csv+'\nfunction csvToJSON', s, count=1, flags=re.S)
+
           old='let currentFile=null,resultBlob=null,resultName="",previewUrl=null,toastTimer=null,extractedZipFiles=[];'
           if 'window.__acResult' not in s:
               s=s.replace(old,old+'window.__acResult=function(){return {blob:resultBlob,name:resultName};};',1)
           patch=Path('app/ac-fix.html').read_text()
           if 'acFixScript' not in s: s=s.replace('</body>',patch+'</body>',1)
           p.write_text(s)
+          PY
+
+          # Fail the build instead of ever shipping an HTML page that renders a
+          # fragment of JavaScript as visible text.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess, tempfile
+          s=Path('app/www/index.html').read_text()
+          blocks=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.I|re.S)
+          if len(blocks) < 2:
+              raise SystemExit('HTML integrity check failed: inline script blocks missing')
+          for i,b in enumerate(blocks,1):
+              f=Path(tempfile.gettempdir())/f'ac-script-{i}.js'
+              f.write_text(b)
+              r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
+              if r.returncode:
+                  print(r.stderr)
+                  raise SystemExit(f'JavaScript syntax check failed in inline script #{i}')
+          opens=len(re.findall(r'<script\b',s,re.I))
+          closes=len(re.findall(r'</script\s*>',s,re.I))
+          if opens != closes:
+              raise SystemExit(f'HTML script tag mismatch: {opens} opens vs {closes} closes')
+          print(f'HTML integrity OK: {opens} script tags, {len(blocks)} inline blocks')
           PY
 
       - name: Configure Capacitor Android
@@ -94,8 +128,6 @@ jobs:
           x.mkdir(parents=True,exist_ok=True)
           (x/'file_paths.xml').write_text('<?xml version="1.0" encoding="utf-8"?><paths xmlns:android="http://schemas.android.com/apk/res/android"><cache-path name="shared" path="."/></paths>')
 
-          # Remove the generated Capacitor activity and install exactly one bridge activity
-          # at the filesystem path matching its debug Java package.
           for f in Path('app/src/main/java').rglob('MainActivity.java'):
               f.unlink()
           dst=Path('app/src/main/java/com/apkstudio/allconvert/debug/MainActivity.java')
@@ -118,6 +150,24 @@ jobs:
           unzip -t All-Convert-debug-fix.apk >/dev/null
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
           "$APKSIGNER" verify --verbose All-Convert-debug-fix.apk
+          unzip -p All-Convert-debug-fix.apk assets/public/index.html > /tmp/final-index.html
+          test -s /tmp/final-index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess, tempfile
+          s=Path('/tmp/final-index.html').read_text()
+          blocks=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.I|re.S)
+          for i,b in enumerate(blocks,1):
+              f=Path(tempfile.gettempdir())/f'final-ac-script-{i}.js'; f.write_text(b)
+              r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
+              if r.returncode:
+                  print(r.stderr); raise SystemExit(f'Final APK JS syntax failed in inline script #{i}')
+          if len(re.findall(r'<script\b',s,re.I)) != len(re.findall(r'</script\s*>',s,re.I)):
+              raise SystemExit('Final APK HTML script tag mismatch')
+          if 'https://cdn.jsdelivr.net/npm/pdfjs-dist' in s:
+              raise SystemExit('Final APK still contains remote PDF.js URL')
+          print('Final APK embedded HTML integrity check passed')
+          PY
 
       - uses: actions/upload-artifact@v4
         with:
