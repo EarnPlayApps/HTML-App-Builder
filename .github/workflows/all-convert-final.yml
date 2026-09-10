@@ -1,0 +1,91 @@
+name: All Convert APK Final
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Prepare app
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf app
+          mkdir -p app/www/vendor app/android-placeholder
+          cp Index.html app/www/index.html
+          [ -d www-source ] && cp -R www-source/. app/www/ || true
+          curl -fsSL https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js -o app/www/vendor/jspdf.umd.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js -o app/www/vendor/html2canvas.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js -o app/www/vendor/mammoth.browser.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js -o app/www/vendor/jszip.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js -o app/www/vendor/tesseract.min.js
+          cp native-bridge/ac-fix.html app/ac-fix.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/www/index.html')
+          s=p.read_text()
+          reps={'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js':'vendor/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js':'vendor/html2canvas.min.js','https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js':'vendor/mammoth.browser.min.js','https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js':'vendor/jszip.min.js','https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js':'vendor/tesseract.min.js'}
+          for a,b in reps.items(): s=s.replace(a,b)
+          old='let currentFile=null,resultBlob=null,resultName="",previewUrl=null,toastTimer=null,extractedZipFiles=[];'
+          if 'window.__acResult' not in s: s=s.replace(old,old+'window.__acResult=function(){return {blob:resultBlob,name:resultName};};',1)
+          patch=Path('app/ac-fix.html').read_text()
+          if 'acFixScript' not in s: s=s.replace('</body>',patch+'</body>',1)
+          p.write_text(s)
+          PY
+          cat > app/package.json <<'JSON'
+          {"name":"all-convert-apk","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"8.0.0","@capacitor/android":"8.0.0"},"devDependencies":{"@capacitor/cli":"8.0.0"}}
+          JSON
+          cd app
+          npm install
+          npx cap init "All Convert" "com.apkstudio.allconvert" --web-dir www
+          npx cap add android
+          npx cap sync android
+          cd android
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/build.gradle');t=p.read_text()
+          if 'play-services-ads:25.4.0' not in t:t=t.replace('dependencies {','dependencies {\n    implementation \'com.google.android.gms:play-services-ads:25.4.0\'',1)
+          p.write_text(t)
+          m=Path('app/src/main/AndroidManifest.xml');s=m.read_text()
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+            i=s.find('>',s.find('<application'));s=s[:i+1]+'<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'+s[i+1:]
+          if 'com.apkstudio.allconvert.fileprovider' not in s:
+            i=s.rfind('</application>');s=s[:i]+'<provider android:name="androidx.core.content.FileProvider" android:authorities="com.apkstudio.allconvert.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/></provider>'+s[i:]
+          m.write_text(s)
+          x=Path('app/src/main/res/xml');x.mkdir(parents=True,exist_ok=True);(x/'file_paths.xml').write_text('<?xml version="1.0" encoding="utf-8"?><paths xmlns:android="http://schemas.android.com/apk/res/android"><cache-path name="shared" path="."/></paths>')
+          Path('app/src/main/java/com/apkstudio/allconvert/MainActivity.java').write_text(Path('../../native-bridge/MainActivity.java').read_text())
+          PY
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=$(find app/android -type f -path '*/build/outputs/apk/debug/*.apk' | head -1)
+          test -n "$APK"
+          cp "$APK" app-debug.apk
+          sha256sum app-debug.apk > apk.sha256
+          unzip -t app-debug.apk >/dev/null
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --verbose app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: All-Convert-APK-final
+          path: |
+            app-debug.apk
+            apk.sha256
+          if-no-files-found: error
+          retention-days: 14
