@@ -1,0 +1,126 @@
+name: All Convert APK #18
+
+on: [push, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Prepare web assets and APK bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf app
+          mkdir -p app/www/vendor
+          cp Index.html app/www/index.html
+          [ -d www-source ] && cp -R www-source/. app/www/ || true
+          curl -fsSL https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js -o app/www/vendor/jspdf.umd.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js -o app/www/vendor/html2canvas.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js -o app/www/vendor/mammoth.browser.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js -o app/www/vendor/jszip.min.js
+          curl -fsSL https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js -o app/www/vendor/tesseract.min.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/www/index.html')
+          s=p.read_text()
+          for a,b in {
+            'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js':'vendor/jspdf.umd.min.js',
+            'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js':'vendor/html2canvas.min.js',
+            'https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js':'vendor/mammoth.browser.min.js',
+            'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js':'vendor/jszip.min.js',
+            'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js':'vendor/tesseract.min.js'
+          }.items(): s=s.replace(a,b)
+          if 'window.__acResult=' not in s:
+            s=s.replace('let currentFile=null,resultBlob=null,resultName="",previewUrl=null,toastTimer=null,extractedZipFiles=[];', 'let currentFile=null,resultBlob=null,resultName="",previewUrl=null,toastTimer=null,extractedZipFiles=[];window.__acResult=function(){return {blob:resultBlob,name:resultName};};')
+          patch=r'''<style id="acNativeFixStyle">
+          #preview.ac-zoomable{overflow:auto!important;position:relative;touch-action:none;overscroll-behavior:contain}
+          #preview.ac-zoomable>.ac-zoom-target{transform-origin:top left;will-change:transform}
+          .ac-zoombar{display:flex;justify-content:center;align-items:center;gap:7px;margin:10px 0;flex-wrap:wrap}
+          .ac-zoombar button{min-width:44px!important;min-height:40px!important;border-radius:12px!important;font-weight:900}
+          .ac-zoombar span{min-width:58px;text-align:center;color:#9aa6bf;font-size:11px;font-weight:800}
+          </style>
+          <script id="acNativeFixScript">
+          (function(){
+            var zoom=1,active=false,startDist=0,startZoom=1,startX=0,startY=0,baseX=0,baseY=0;
+            function result(){try{return window.__acResult?window.__acResult():null}catch(e){return null}}
+            function apply(){var p=document.getElementById('preview');if(!p)return;var t=p.querySelector('.ac-zoom-target');if(!t)return;t.style.transform='translate('+baseX+'px,'+baseY+'px) scale('+zoom+')';var v=document.getElementById('acZoomValue');if(v)v.textContent=Math.round(zoom*100)+'%'}
+            function setZoom(v){zoom=Math.max(1,Math.min(4,v));apply()}
+            function distance(a,b){var x=a.clientX-b.clientX,y=a.clientY-b.clientY;return Math.sqrt(x*x+y*y)}
+            function setupZoom(){var p=document.getElementById('preview');if(!p||p.dataset.acZoomReady==='1')return;var observer=new MutationObserver(function(){var t=p.querySelector('img,.pdf-preview');if(!t)return;if(t.classList.contains('ac-zoom-target'))return;p.classList.add('ac-zoomable');t.classList.add('ac-zoom-target');zoom=1;baseX=0;baseY=0;var bar=document.createElement('div');bar.className='ac-zoombar';bar.innerHTML='<button type="button" id="acZoomOut">−</button><span id="acZoomValue">100%</span><button type="button" id="acZoomReset">100%</button><button type="button" id="acZoomIn">+</button>';p.parentNode.insertBefore(bar,p.nextSibling);document.getElementById('acZoomOut').onclick=function(){setZoom(zoom-.25)};document.getElementById('acZoomIn').onclick=function(){setZoom(zoom+.25)};document.getElementById('acZoomReset').onclick=function(){zoom=1;baseX=0;baseY=0;apply()};apply()});observer.observe(p,{childList:true,subtree:true});p.dataset.acZoomReady='1';p.addEventListener('dblclick',function(){setZoom(zoom>1?1:2)});p.addEventListener('touchstart',function(e){if(e.touches.length===2){startDist=distance(e.touches[0],e.touches[1]);startZoom=zoom;e.preventDefault()}else if(e.touches.length===1&&zoom>1){startX=e.touches[0].clientX;startY=e.touches[0].clientY}}, {passive:false});p.addEventListener('touchmove',function(e){if(e.touches.length===2&&startDist){setZoom(startZoom*(distance(e.touches[0],e.touches[1])/startDist));e.preventDefault()}else if(e.touches.length===1&&zoom>1){var dx=e.touches[0].clientX-startX,dy=e.touches[0].clientY-startY;baseX=Math.max(-p.clientWidth*(zoom-1),Math.min(0,baseX+dx));baseY=Math.max(-p.clientHeight*(zoom-1),Math.min(0,baseY+dy));startX=e.touches[0].clientX;startY=e.touches[0].clientY;apply();e.preventDefault()}},{passive:false});p.addEventListener('touchend',function(e){if(e.touches.length<2)startDist=0},{passive:false})}
+            function nativeButtons(){if(!window.AndroidFileBridge)return;['downloadBtn','saveBtn','shareBtn','openBtn'].forEach(function(id){var e=document.getElementById(id);if(!e||e.dataset.acNative==='1')return;e.dataset.acNative='1';e.addEventListener('click',function(ev){ev.preventDefault();ev.stopImmediatePropagation();var r=result();if(!r||!r.blob){alert('Tiada hasil conversion untuk disimpan.');return}var mode=id==='downloadBtn'?'download':id==='saveBtn'?'save':id==='shareBtn'?'share':'open';var fr=new FileReader();fr.onload=function(){var data=String(fr.result).split(',')[1]||'';try{window.AndroidFileBridge.beginResult(mode,r.name||'converted-file',r.blob.type||'application/octet-stream');for(var i=0;i<data.length;i+=500000)window.AndroidFileBridge.writeResultChunk(data.slice(i,i+500000));window.AndroidFileBridge.finishResult()}catch(err){alert('Operasi fail gagal: '+err)}};fr.readAsDataURL(r.blob)},true)})}
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupZoom);else setupZoom();var timer=setInterval(nativeButtons,100);setTimeout(function(){clearInterval(timer)},10000);
+          })();
+          </script>'''
+          s=s.replace('</body>',patch+'\n</body>')
+          p.write_text(s)
+          PY
+          cat > app/package.json <<'JSON'
+          {"name":"all-convert-apk","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"8.0.0","@capacitor/android":"8.0.0"},"devDependencies":{"@capacitor/cli":"8.0.0"}}
+          JSON
+          cd app
+          npm install
+          npx cap init "All Convert" "com.apkstudio.allconvert" --web-dir www
+          npx cap add android
+          npx cap sync android
+          cd android
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/build.gradle');t=p.read_text()
+          if 'play-services-ads:25.4.0' not in t:t=t.replace('dependencies {','dependencies {\n    implementation \'com.google.android.gms:play-services-ads:25.4.0\'',1)
+          p.write_text(t)
+          m=Path('app/src/main/AndroidManifest.xml');s=m.read_text()
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+            i=s.find('>',s.find('<application'));s=s[:i+1]+'\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'+s[i+1:]
+          if 'com.apkstudio.allconvert.fileprovider' not in s:
+            i=s.rfind('</application>');s=s[:i]+'\n        <provider android:name="androidx.core.content.FileProvider" android:authorities="com.apkstudio.allconvert.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/></provider>\n'+s[i:]
+          m.write_text(s)
+          x=Path('app/src/main/res/xml');x.mkdir(parents=True,exist_ok=True)
+          (x/'file_paths.xml').write_text('<?xml version="1.0" encoding="utf-8"?><paths xmlns:android="http://schemas.android.com/apk/res/android"><cache-path name="shared" path="."/></paths>')
+          a=Path('app/src/main/java/com/apkstudio/allconvert/MainActivity.java');a.parent.mkdir(parents=True,exist_ok=True)
+          a.write_text('''package com.apkstudio.allconvert;
+import android.content.*;import android.net.Uri;import android.os.*;import android.provider.MediaStore;import android.util.Base64;import android.webkit.JavascriptInterface;import android.webkit.WebView;import android.view.ViewGroup;import android.widget.LinearLayout;import android.widget.Toast;import com.getcapacitor.BridgeActivity;import com.google.android.gms.ads.*;import com.google.android.gms.ads.initialization.InitializationStatus;import androidx.core.content.FileProvider;import java.io.*;
+public class MainActivity extends BridgeActivity{
+ private File temp; private FileOutputStream out; private String mode,name,mime;
+ @Override public void onCreate(Bundle b){super.onCreate(b);MobileAds.initialize(this,(InitializationStatus s)->{});WebView w=getBridge().getWebView();w.getSettings().setDomStorageEnabled(true);w.addJavascriptInterface(new FileBridge(),"AndroidFileBridge");ViewGroup old=(ViewGroup)w.getParent();if(old!=null)old.removeView(w);LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.addView(w,new LinearLayout.LayoutParams(-1,0,1f));AdView ad=new AdView(this);ad.setAdUnitId("ca-app-pub-9940728659432865/7572128943");int width=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);ad.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this,width));root.addView(ad,new LinearLayout.LayoutParams(-1,-2));setContentView(root);ad.loadAd(new AdRequest.Builder().build());}
+ private void say(String s){runOnUiThread(()->Toast.makeText(this,s,Toast.LENGTH_SHORT).show());}
+ private class FileBridge{
+  @JavascriptInterface public synchronized void beginResult(String m,String n,String mm)throws Exception{mode=m;name=(n==null?"converted-file":n).replaceAll("[\\\\/:*?\"<>|]","_");mime=(mm==null||mm.isEmpty()?"application/octet-stream":mm);if(temp!=null)temp.delete();temp=new File(getCacheDir(),"allconvert_result_"+System.currentTimeMillis());out=new FileOutputStream(temp);}
+  @JavascriptInterface public synchronized void writeResultChunk(String b)throws Exception{if(out==null)throw new IOException("Result stream not open");out.write(Base64.decode(b,Base64.DEFAULT));}
+  @JavascriptInterface public synchronized void finishResult()throws Exception{if(out!=null){out.close();out=null;}if("download".equals(mode)||"save".equals(mode))saveToDownloads();else shareOrOpen();}
+  private void saveToDownloads()throws Exception{if(Build.VERSION.SDK_INT>=29){ContentValues v=new ContentValues();v.put(MediaStore.Downloads.DISPLAY_NAME,name);v.put(MediaStore.Downloads.MIME_TYPE,mime);v.put(MediaStore.Downloads.RELATIVE_PATH,Environment.DIRECTORY_DOWNLOADS+"/All Convert");v.put(MediaStore.Downloads.IS_PENDING,1);Uri u=getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI,v);if(u==null)throw new IOException("Downloads insert gagal");try(InputStream in=new FileInputStream(temp);OutputStream o=getContentResolver().openOutputStream(u)){byte[] buf=new byte[65536];int n;while((n=in.read(buf))>0)o.write(buf,0,n);}v.clear();v.put(MediaStore.Downloads.IS_PENDING,0);getContentResolver().update(u,v,null,null);}else{File dir=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);if(!dir.exists()&&!dir.mkdirs())throw new IOException("Downloads gagal");File dst=new File(dir,name);try(InputStream in=new FileInputStream(temp);OutputStream o=new FileOutputStream(dst)){byte[] buf=new byte[65536];int n;while((n=in.read(buf))>0)o.write(buf,0,n);}}temp.delete();say("Fail disimpan dalam Downloads/All Convert");}
+  private void shareOrOpen()throws Exception{Uri u=FileProvider.getUriForFile(MainActivity.this,"com.apkstudio.allconvert.fileprovider",temp);Intent i=new Intent("share".equals(mode)?Intent.ACTION_SEND:Intent.ACTION_VIEW);if("share".equals(mode)){i.setType(mime);i.putExtra(Intent.EXTRA_STREAM,u);}else{i.setDataAndType(u,mime);}i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(i,"Buka / Kongsi dengan"));}
+ }
+}
+''')
+          PY
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK=$(find app/android -type f -path '*/build/outputs/apk/debug/*.apk' | head -1)
+          test -n "$APK"
+          cp "$APK" app-debug.apk
+          sha256sum app-debug.apk > apk.sha256
+          unzip -t app-debug.apk >/dev/null
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --verbose app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: All-Convert-APK-build-18
+          path: |
+            app-debug.apk
+            apk.sha256
+          if-no-files-found: error
+          retention-days: 14
