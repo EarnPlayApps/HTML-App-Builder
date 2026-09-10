@@ -25,6 +25,75 @@ jobs:
           mkdir -p app/www
           cp Index.html app/www/index.html
           [ -d www-source ] && cp -R www-source/. app/www/ || true
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/www/index.html')
+          s=p.read_text()
+          patch=r'''<style>
+          .ac-zoombar{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 0}
+          .ac-zoombar button{min-width:42px!important;min-height:40px!important;padding:0 12px;border-radius:12px!important;font-weight:900}
+          .ac-zoombar span{min-width:58px;text-align:center;color:#9aa6bf;font-size:11px;font-weight:800}
+          #preview.ac-zoom{overflow:auto!important;touch-action:pan-x pan-y;}
+          #preview.ac-zoom img,#preview.ac-zoom iframe,#preview.ac-zoom .preview-text,#preview.ac-zoom .html-preview{transform-origin:top left}
+          </style>
+          <script>
+          (function(){
+            function ready(){
+              var p=document.getElementById('preview'), r=document.getElementById('result');
+              if(!p||!r||document.getElementById('acZoomBar')) return;
+              var bar=document.createElement('div'); bar.id='acZoomBar'; bar.className='ac-zoombar';
+              bar.innerHTML='<button type="button" id="acZoomOut">−</button><span id="acZoomValue">100%</span><button type="button" id="acZoomReset">100%</button><button type="button" id="acZoomIn">+</button>';
+              p.parentNode.insertBefore(bar,p.nextSibling); p.classList.add('ac-zoom');
+              var scale=1;
+              function apply(){
+                var child=p.firstElementChild;
+                if(!child) return;
+                child.style.transform='scale('+scale+')';
+                if(child.tagName==='IMG'||child.tagName==='IFRAME') child.style.width=(100/scale)+'%';
+                document.getElementById('acZoomValue').textContent=Math.round(scale*100)+'%';
+              }
+              function set(v){scale=Math.max(.5,Math.min(3,v));apply()}
+              document.getElementById('acZoomOut').onclick=function(){set(scale-.25)};
+              document.getElementById('acZoomIn').onclick=function(){set(scale+.25)};
+              document.getElementById('acZoomReset').onclick=function(){set(1)};
+              new MutationObserver(function(){if(p.firstElementChild) set(1)}).observe(p,{childList:true,subtree:true});
+            }
+            if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',ready); else ready();
+          })();
+          </script>
+          <script>
+          (function(){
+            function install(){
+              var ids=['downloadBtn','saveBtn','shareBtn','openBtn'];
+              if(!window.AndroidFileBridge) return;
+              function send(mode){
+                try{
+                  var blob=window.resultBlob, name=window.resultName||'converted-file';
+                  if(!blob){ if(window.showToast) showToast('Tiada fail','Hasil conversion belum tersedia.'); return; }
+                  var reader=new FileReader();
+                  reader.onload=function(){
+                    var data=String(reader.result||'').split(',')[1]||'';
+                    AndroidFileBridge.beginResult(mode,name,blob.type||'application/octet-stream');
+                    var step=700000, i=0;
+                    function chunk(){
+                      if(i<data.length){ AndroidFileBridge.writeResultChunk(data.slice(i,i+step)); i+=step; setTimeout(chunk,0); }
+                      else AndroidFileBridge.finishResult();
+                    }
+                    chunk();
+                  };
+                  reader.readAsDataURL(blob);
+                }catch(e){ if(window.showToast) showToast('Ralat',e.message||String(e)); }
+              }
+              ids.forEach(function(id){var el=document.getElementById(id); if(el) el.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();send(id==='downloadBtn'?'download':id==='saveBtn'?'save':id==='shareBtn'?'share':'open');},true);});
+            }
+            var n=0,t=setInterval(function(){install();if(++n>50)clearInterval(t)},100);
+          })();
+          </script>'''
+          marker='</body>'
+          if 'id="acZoomBar"' not in s:
+              s=s.replace(marker,patch+'\n'+marker,1)
+          p.write_text(s)
+          PY
           cat > app/package.json <<'JSON'
           {"name":"all-convert-apk","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"8.0.0","@capacitor/android":"8.0.0"},"devDependencies":{"@capacitor/cli":"8.0.0"}}
           JSON
@@ -46,10 +115,17 @@ jobs:
           if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
               i=s.find('>', s.find('<application'))
               s=s[:i+1]+'\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'+s[i+1:]
+          if 'androidx.core.content.FileProvider' not in s:
+              i=s.rfind('</application>')
+              provider='''\n        <provider android:name="androidx.core.content.FileProvider" android:authorities="com.apkstudio.allconvert.fileprovider" android:exported="false" android:grantUriPermissions="true">\n            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/>\n        </provider>\n'''
+              s=s[:i]+provider+s[i:]
           m.write_text(s)
+          paths=Path('app/src/main/res/xml')
+          paths.mkdir(parents=True,exist_ok=True)
+          (paths/'file_paths.xml').write_text('''<?xml version="1.0" encoding="utf-8"?>\n<paths xmlns:android="http://schemas.android.com/apk/res/android">\n    <cache-path name="shared" path="." />\n    <external-files-path name="external" path="." />\n</paths>\n''')
           a=Path('app/src/main/java/com/apkstudio/allconvert/MainActivity.java')
           a.parent.mkdir(parents=True,exist_ok=True)
-          a.write_text('''package com.apkstudio.allconvert;\nimport android.os.Bundle;\nimport android.view.ViewGroup;\nimport android.widget.LinearLayout;\nimport com.getcapacitor.BridgeActivity;\nimport com.google.android.gms.ads.AdRequest;\nimport com.google.android.gms.ads.AdSize;\nimport com.google.android.gms.ads.AdView;\nimport com.google.android.gms.ads.MobileAds;\npublic class MainActivity extends BridgeActivity {\n @Override public void onCreate(Bundle savedInstanceState) {\n  super.onCreate(savedInstanceState);\n  MobileAds.initialize(this, status -> {});\n  android.webkit.WebView web=getBridge().getWebView();\n  ViewGroup old=(ViewGroup)web.getParent(); if(old!=null) old.removeView(web);\n  LinearLayout root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);\n  root.addView(web,new LinearLayout.LayoutParams(-1,0,1f));\n  AdView ad=new AdView(this); ad.setAdUnitId("ca-app-pub-9940728659432865/7572128943");\n  int w=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);\n  ad.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this,w));\n  root.addView(ad,new LinearLayout.LayoutParams(-1,-2));\n  setContentView(root); ad.loadAd(new AdRequest.Builder().build());\n }\n}\n''')
+          a.write_text('''package com.apkstudio.allconvert;\n\nimport android.content.ContentValues;\nimport android.content.Intent;\nimport android.net.Uri;\nimport android.os.Build;\nimport android.os.Bundle;\nimport android.os.Environment;\nimport android.provider.MediaStore;\nimport android.util.Base64;\nimport android.webkit.JavascriptInterface;\nimport android.webkit.WebView;\nimport android.view.ViewGroup;\nimport android.widget.LinearLayout;\nimport com.getcapacitor.BridgeActivity;\nimport com.google.android.gms.ads.AdRequest;\nimport com.google.android.gms.ads.AdSize;\nimport com.google.android.gms.ads.AdView;\nimport com.google.android.gms.ads.MobileAds;\nimport androidx.core.content.FileProvider;\nimport java.io.File;\nimport java.io.FileOutputStream;\nimport java.io.OutputStream;\n\npublic class MainActivity extends BridgeActivity {\n private File tempFile; private FileOutputStream tempOut; private String pendingMode,pendingName,pendingMime;\n @Override public void onCreate(Bundle savedInstanceState) {\n  super.onCreate(savedInstanceState);\n  MobileAds.initialize(this, status -> {});\n  WebView web=getBridge().getWebView();\n  web.getSettings().setDomStorageEnabled(true);\n  web.addJavascriptInterface(new FileBridge(), "AndroidFileBridge");\n  ViewGroup old=(ViewGroup)web.getParent(); if(old!=null) old.removeView(web);\n  LinearLayout root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);\n  root.addView(web,new LinearLayout.LayoutParams(-1,0,1f));\n  AdView ad=new AdView(this); ad.setAdUnitId("ca-app-pub-9940728659432865/7572128943");\n  int w=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);\n  ad.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this,w));\n  root.addView(ad,new LinearLayout.LayoutParams(-1,-2));\n  setContentView(root); ad.loadAd(new AdRequest.Builder().build());\n }\n private class FileBridge {\n  @JavascriptInterface public synchronized void beginResult(String mode,String name,String mime) throws Exception {\n   pendingMode=mode; pendingName=name==null?"converted-file":name.replaceAll("[\\\\/:*?\\\"<>|]","_"); pendingMime=(mime==null||mime.isEmpty())?"application/octet-stream":mime;\n   tempFile=new File(getCacheDir(),"result_"+System.currentTimeMillis()); tempOut=new FileOutputStream(tempFile);\n  }\n  @JavascriptInterface public synchronized void writeResultChunk(String b64) throws Exception { if(tempOut!=null) tempOut.write(Base64.decode(b64,Base64.DEFAULT)); }\n  @JavascriptInterface public synchronized void finishResult() throws Exception {\n   if(tempOut!=null){tempOut.flush();tempOut.close();tempOut=null;}\n   if("download".equals(pendingMode)||"save".equals(pendingMode)) saveToDownloads(); else shareOrOpen();\n  }\n  private void saveToDownloads() throws Exception {\n   if(Build.VERSION.SDK_INT>=29){\n    ContentValues v=new ContentValues(); v.put(MediaStore.Downloads.DISPLAY_NAME,pendingName); v.put(MediaStore.Downloads.MIME_TYPE,pendingMime); v.put(MediaStore.Downloads.RELATIVE_PATH,Environment.DIRECTORY_DOWNLOADS); v.put(MediaStore.Downloads.IS_PENDING,1);\n    Uri u=getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI,v); if(u==null) throw new Exception("Tidak dapat simpan ke Downloads");\n    try(OutputStream out=getContentResolver().openOutputStream(u)){java.io.FileInputStream in=new java.io.FileInputStream(tempFile); byte[] b=new byte[65536]; int n; while((n=in.read(b))>0)out.write(b,0,n); in.close();}\n    v.clear(); v.put(MediaStore.Downloads.IS_PENDING,0); getContentResolver().update(u,v,null,null);\n   } else {\n    File dir=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS); dir.mkdirs(); File outFile=new File(dir,pendingName); java.io.FileInputStream in=new java.io.FileInputStream(tempFile); FileOutputStream out=new FileOutputStream(outFile); byte[] b=new byte[65536]; int n; while((n=in.read(b))>0)out.write(b,0,n); in.close();out.close();\n   }\n   tempFile.delete();\n   toast("Disimpan dalam Downloads");\n  }\n  private void shareOrOpen() {\n   try { Uri u=FileProvider.getUriForFile(MainActivity.this,"com.apkstudio.allconvert.fileprovider",tempFile); Intent i=new Intent("share".equals(pendingMode)?Intent.ACTION_SEND:Intent.ACTION_VIEW); if("share".equals(pendingMode)){i.setType(pendingMime);i.putExtra(Intent.EXTRA_STREAM,u);}else{i.setDataAndType(u,pendingMime);} i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_ACTIVITY_NEW_TASK); startActivity(Intent.createChooser(i,"Buka dengan"));\n   }catch(Exception e){toast("Tidak dapat buka/share: "+e.getMessage());}\n  }\n  private void toast(String s){runOnUiThread(()->android.widget.Toast.makeText(MainActivity.this,s,android.widget.Toast.LENGTH_SHORT).show());}\n }\n}\n''')
           PY
           chmod +x gradlew
           ./gradlew clean assembleDebug --stacktrace --no-daemon
@@ -65,7 +141,7 @@ jobs:
           "$APKSIGNER" verify --verbose app-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: All-Convert-APK-build-16
+          name: All-Convert-APK-build-17
           path: |
             app-debug.apk
             apk.sha256
