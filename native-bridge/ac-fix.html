@@ -1,1 +1,101 @@
-<style id="acFixStyle">#preview.acZoom{overflow:auto!important;touch-action:none}.acZoomBar{display:flex;justify-content:center;gap:8px;margin:9px 0}.acZoomBar button{min-width:44px!important;min-height:40px!important;border-radius:12px!important;font-weight:900}.acZoomBar span{min-width:55px;text-align:center;color:#9aa6bf;font-size:11px;font-weight:800}.acZoomTarget{transform-origin:top left;will-change:transform}</style><script id="acFixScript">(function(){var z=1,sd=0,sz=1,px=0,py=0,lx=0,ly=0;function r(){return window.__acResult?window.__acResult():null}function ap(){var p=document.getElementById("preview"),t=p&&p.querySelector(".acZoomTarget");if(!t)return;t.style.transform="translate("+px+"px,"+py+"px) scale("+z+")";var v=document.getElementById("acZoomValue");if(v)v.textContent=Math.round(z*100)+"%"}function setz(v){z=Math.max(1,Math.min(4,v));ap()}function dist(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}function watch(){var p=document.getElementById("preview");if(!p||p.dataset.acfix)return;p.dataset.acfix=1;var mo=new MutationObserver(function(){var t=p.querySelector("img,.pdf-preview");if(!t||t.classList.contains("acZoomTarget"))return;p.classList.add("acZoom");t.classList.add("acZoomTarget");z=1;px=py=0;var b=document.createElement("div");b.className="acZoomBar";b.innerHTML="<button type=button id=acZoomOut>−</button><span id=acZoomValue>100%</span><button type=button id=acZoomReset>100%</button><button type=button id=acZoomIn>+</button>";p.parentNode.insertBefore(b,p.nextSibling);acZoomOut.onclick=function(){setz(z-.25)};acZoomIn.onclick=function(){setz(z+.25)};acZoomReset.onclick=function(){z=1;px=py=0;ap()};ap()});mo.observe(p,{childList:true,subtree:true});p.addEventListener("dblclick",function(){setz(z>1?1:2)});p.addEventListener("touchstart",function(e){if(e.touches.length===2){sd=dist(e.touches[0],e.touches[1]);sz=z;e.preventDefault()}else if(e.touches.length===1&&z>1){lx=e.touches[0].clientX;ly=e.touches[0].clientY}},{passive:false});p.addEventListener("touchmove",function(e){if(e.touches.length===2&&sd){setz(sz*dist(e.touches[0],e.touches[1])/sd);e.preventDefault()}else if(e.touches.length===1&&z>1){px+=e.touches[0].clientX-lx;py+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;ap();e.preventDefault()}},{passive:false});p.addEventListener("touchend",function(){sd=0},{passive:false})}function buttons(){if(!window.AndroidFileBridge)return;["downloadBtn","saveBtn","shareBtn","openBtn"].forEach(function(id){var e=document.getElementById(id);if(!e||e.dataset.acfix)return;e.dataset.acfix=1;e.addEventListener("click",function(ev){ev.preventDefault();ev.stopImmediatePropagation();var x=r();if(!x||!x.blob){alert("Tiada hasil conversion.");return}var m=id==="downloadBtn"?"download":id==="saveBtn"?"save":id==="shareBtn"?"share":"open",f=new FileReader();f.onload=function(){var d=String(f.result).split(",")[1]||"";try{AndroidFileBridge.beginResult(m,x.name||"converted-file",x.blob.type||"application/octet-stream");for(var i=0;i<d.length;i+=400000)AndroidFileBridge.writeResultChunk(d.slice(i,i+400000));AndroidFileBridge.finishResult()}catch(q){alert("Operasi fail gagal: "+q)}};f.readAsDataURL(x.blob)},true)})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",watch);else watch();var t=setInterval(buttons,100);setTimeout(function(){clearInterval(t)},10000)})();</script>
+<style id="acFixStyle">
+#preview.acZoom{overflow:auto!important;touch-action:none;-webkit-overflow-scrolling:touch}
+.acZoomBar{display:flex;justify-content:center;align-items:center;gap:8px;margin:9px 0;flex-wrap:wrap}
+.acZoomBar button{min-width:44px!important;min-height:40px!important;border-radius:12px!important;font-weight:900}
+.acZoomBar span{min-width:55px;text-align:center;color:#9aa6bf;font-size:11px;font-weight:800}
+.acZoomTarget{transform-origin:top left;will-change:transform}
+</style>
+<script id="acFixScript">
+(function(){
+  "use strict";
+  var z=1,sd=0,sz=1,px=0,py=0,lx=0,ly=0,lastTap=0;
+  function result(){return window.__acResult?window.__acResult():null;}
+  function target(){var p=document.getElementById("preview");return p?p.querySelector(".acZoomTarget"):null;}
+  function apply(){
+    var p=document.getElementById("preview"),t=target();
+    if(!p||!t)return;
+    t.style.transform="translate("+px+"px,"+py+"px) scale("+z+")";
+    var v=document.getElementById("acZoomValue");
+    if(v)v.textContent=Math.round(z*100)+"%";
+  }
+  function setZoom(v){z=Math.max(1,Math.min(4,v));if(z===1){px=0;py=0;}apply();}
+  function distance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
+  function ensureZoomTarget(){
+    var p=document.getElementById("preview");
+    if(!p)return;
+    var t=p.querySelector(".acZoomTarget");
+    if(!t){
+      t=p.querySelector("img,.pdf-preview,.pdf-page,.preview-text,.html-preview,iframe");
+      if(!t)t=p.firstElementChild;
+      if(t)t.classList.add("acZoomTarget");
+    }
+    if(t&&!p.classList.contains("acZoom"))p.classList.add("acZoom");
+    if(t&&!document.getElementById("acZoomBar")){
+      var b=document.createElement("div");
+      b.id="acZoomBar";b.className="acZoomBar";
+      b.innerHTML='<button type="button" id="acZoomOut">−</button><span id="acZoomValue">100%</span><button type="button" id="acZoomReset">100%</button><button type="button" id="acZoomIn">+</button>';
+      p.parentNode.insertBefore(b,p.nextSibling);
+      document.getElementById("acZoomOut").onclick=function(){setZoom(z-.25);};
+      document.getElementById("acZoomIn").onclick=function(){setZoom(z+.25);};
+      document.getElementById("acZoomReset").onclick=function(){z=1;px=py=0;apply();};
+      apply();
+    }
+  }
+  function watch(){
+    var p=document.getElementById("preview");
+    if(!p||p.dataset.acfix)return;
+    p.dataset.acfix="1";
+    var mo=new MutationObserver(function(){ensureZoomTarget();});
+    mo.observe(p,{childList:true,subtree:true});
+    p.addEventListener("dblclick",function(e){e.preventDefault();setZoom(z>1?1:2);},false);
+    p.addEventListener("touchstart",function(e){
+      if(e.touches.length===2){sd=distance(e.touches[0],e.touches[1]);sz=z;e.preventDefault();}
+      else if(e.touches.length===1&&z>1){lx=e.touches[0].clientX;ly=e.touches[0].clientY;}
+    },{passive:false});
+    p.addEventListener("touchmove",function(e){
+      if(e.touches.length===2&&sd){setZoom(sz*distance(e.touches[0],e.touches[1])/sd);e.preventDefault();}
+      else if(e.touches.length===1&&z>1){px+=e.touches[0].clientX-lx;py+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;apply();e.preventDefault();}
+    },{passive:false});
+    p.addEventListener("touchend",function(){sd=0;},{passive:false});
+    p.addEventListener("click",function(e){
+      var now=Date.now();
+      if(now-lastTap<320){e.preventDefault();setZoom(z>1?1:2);}
+      lastTap=now;
+    },false);
+    ensureZoomTarget();
+  }
+  function nativeAction(id){
+    var bridge=window.AndroidFileBridge;if(!bridge)return false;
+    var x=result();
+    if(!x||!x.blob){showToastSafe("Tiada hasil conversion","Buat conversion dahulu.");return true;}
+    var m=id==="downloadBtn"?"download":id==="saveBtn"?"save":id==="shareBtn"?"share":"open";
+    var f=new FileReader();
+    f.onerror=function(){showToastSafe("Gagal","Fail hasil tidak dapat dibaca.");};
+    f.onload=function(){
+      var d=String(f.result||"").split(",")[1]||"";
+      try{
+        bridge.beginResult(m,x.name||"converted-file",x.blob.type||"application/octet-stream");
+        for(var i=0;i<d.length;i+=262144)bridge.writeResultChunk(d.slice(i,i+262144));
+        bridge.finishResult();
+      }catch(q){showToastSafe("Operasi gagal",String(q&&q.message||q));}
+    };
+    f.readAsDataURL(x.blob);
+    return true;
+  }
+  function showToastSafe(a,b){
+    if(typeof window.showToast==="function")window.showToast(a,b);
+    else alert(a+(b?"\n"+b:""));
+  }
+  function bind(){
+    document.addEventListener("click",function(ev){
+      var e=ev.target&&ev.target.closest?ev.target.closest("#downloadBtn,#saveBtn,#shareBtn,#openBtn"):null;
+      if(!e||!window.AndroidFileBridge)return;
+      ev.preventDefault();ev.stopImmediatePropagation();nativeAction(e.id);
+    },true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){watch();bind();});
+  else {watch();bind();}
+  var timer=setInterval(function(){watch();ensureZoomTarget();},250);
+  setTimeout(function(){clearInterval(timer);},30000);
+})();
+</script>
