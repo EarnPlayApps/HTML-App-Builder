@@ -38,7 +38,6 @@ jobs:
           cp native-bridge/ac-fix.html app/ac-fix.html
           python3 - <<'PY'
           from pathlib import Path
-          import re
           p=Path('app/www/index.html')
           s=p.read_text()
           reps={
@@ -51,10 +50,13 @@ jobs:
             'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs':'vendor/pdf.worker.mjs'}
           for a,b in reps.items(): s=s.replace(a,b)
 
-          # Repair the CSV escaping helper if an earlier edit introduced a literal
-          # line break inside the JavaScript regular expression.
-          fixed_csv='function csvEscape(v){v=String(v??"");return /[",\\r\\n]/.test(v)?\'"\'+v.replace(/"/g,\'""\')+\'"\':v}'
-          s=re.sub(r'function csvEscape\(v\)\{.*?\}\nfunction csvToJSON', fixed_csv+'\nfunction csvToJSON', s, count=1, flags=re.S)
+          # Replace the entire helper by boundaries, not by a regex that can be
+          # confused by the broken newline inside the existing regular expression.
+          a=s.find('function csvEscape(v){')
+          b=s.find('function csvToJSON',a)
+          if a>=0 and b>a:
+              fixed='function csvEscape(v){v=String(v??"");return /[",\\r\\n]/.test(v)?\'"\'+v.replace(/"/g,\'""\')+\'"\':v}\n'
+              s=s[:a]+fixed+s[b:]
 
           old='let currentFile=null,resultBlob=null,resultName="",previewUrl=null,toastTimer=null,extractedZipFiles=[];'
           if 'window.__acResult' not in s:
@@ -64,8 +66,6 @@ jobs:
           p.write_text(s)
           PY
 
-          # Fail the build instead of ever shipping an HTML page that renders a
-          # fragment of JavaScript as visible text.
           python3 - <<'PY'
           from pathlib import Path
           import re, subprocess, tempfile
@@ -74,16 +74,12 @@ jobs:
           if len(blocks) < 2:
               raise SystemExit('HTML integrity check failed: inline script blocks missing')
           for i,b in enumerate(blocks,1):
-              f=Path(tempfile.gettempdir())/f'ac-script-{i}.js'
-              f.write_text(b)
+              f=Path(tempfile.gettempdir())/f'ac-script-{i}.js'; f.write_text(b)
               r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
               if r.returncode:
-                  print(r.stderr)
-                  raise SystemExit(f'JavaScript syntax check failed in inline script #{i}')
-          opens=len(re.findall(r'<script\b',s,re.I))
-          closes=len(re.findall(r'</script\s*>',s,re.I))
-          if opens != closes:
-              raise SystemExit(f'HTML script tag mismatch: {opens} opens vs {closes} closes')
+                  print(r.stderr); raise SystemExit(f'JavaScript syntax check failed in inline script #{i}')
+          opens=len(re.findall(r'<script\b',s,re.I)); closes=len(re.findall(r'</script\s*>',s,re.I))
+          if opens != closes: raise SystemExit(f'HTML script tag mismatch: {opens} opens vs {closes} closes')
           print(f'HTML integrity OK: {opens} script tags, {len(blocks)} inline blocks')
           PY
 
@@ -102,36 +98,23 @@ jobs:
           cd android
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('app/build.gradle')
-          t=p.read_text()
-          if 'play-services-ads:25.4.0' not in t:
-              t=t.replace('dependencies {','dependencies {\n    implementation \'com.google.android.gms:play-services-ads:25.4.0\'',1)
+          p=Path('app/build.gradle'); t=p.read_text()
+          if 'play-services-ads:25.4.0' not in t: t=t.replace('dependencies {','dependencies {\n    implementation \'com.google.android.gms:play-services-ads:25.4.0\'',1)
           p.write_text(t)
-
-          m=Path('app/src/main/AndroidManifest.xml')
-          s=m.read_text()
+          m=Path('app/src/main/AndroidManifest.xml'); s=m.read_text()
           if 'android.permission.INTERNET' not in s:
-              pos=s.find('<application')
-              s=s[:pos]+'<uses-permission android:name="android.permission.INTERNET" />\n'+s[pos:]
+              pos=s.find('<application'); s=s[:pos]+'<uses-permission android:name="android.permission.INTERNET" />\n'+s[pos:]
           if 'android.permission.ACCESS_NETWORK_STATE' not in s:
-              pos=s.find('<application')
-              s=s[:pos]+'<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n'+s[pos:]
+              pos=s.find('<application'); s=s[:pos]+'<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n'+s[pos:]
           if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
-              i=s.find('>',s.find('<application'))
-              s=s[:i+1]+'<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'+s[i+1:]
+              i=s.find('>',s.find('<application')); s=s[:i+1]+'<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'+s[i+1:]
           if 'com.apkstudio.allconvert.debug.fileprovider' not in s:
-              i=s.rfind('</application>')
-              s=s[:i]+'<provider android:name="androidx.core.content.FileProvider" android:authorities="com.apkstudio.allconvert.debug.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/></provider>'+s[i:]
+              i=s.rfind('</application>'); s=s[:i]+'<provider android:name="androidx.core.content.FileProvider" android:authorities="com.apkstudio.allconvert.debug.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/></provider>'+s[i:]
           m.write_text(s)
-
-          x=Path('app/src/main/res/xml')
-          x.mkdir(parents=True,exist_ok=True)
+          x=Path('app/src/main/res/xml'); x.mkdir(parents=True,exist_ok=True)
           (x/'file_paths.xml').write_text('<?xml version="1.0" encoding="utf-8"?><paths xmlns:android="http://schemas.android.com/apk/res/android"><cache-path name="shared" path="."/></paths>')
-
-          for f in Path('app/src/main/java').rglob('MainActivity.java'):
-              f.unlink()
-          dst=Path('app/src/main/java/com/apkstudio/allconvert/debug/MainActivity.java')
-          dst.parent.mkdir(parents=True,exist_ok=True)
+          for f in Path('app/src/main/java').rglob('MainActivity.java'): f.unlink()
+          dst=Path('app/src/main/java/com/apkstudio/allconvert/debug/MainActivity.java'); dst.parent.mkdir(parents=True,exist_ok=True)
           src=Path('../../native-bridge/MainActivity.java')
           code=src.read_text().replace('package com.apkstudio.allconvert;','package com.apkstudio.allconvert.debug;').replace('com.apkstudio.allconvert.fileprovider','com.apkstudio.allconvert.debug.fileprovider')
           dst.write_text(code)
@@ -160,12 +143,9 @@ jobs:
           for i,b in enumerate(blocks,1):
               f=Path(tempfile.gettempdir())/f'final-ac-script-{i}.js'; f.write_text(b)
               r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
-              if r.returncode:
-                  print(r.stderr); raise SystemExit(f'Final APK JS syntax failed in inline script #{i}')
-          if len(re.findall(r'<script\b',s,re.I)) != len(re.findall(r'</script\s*>',s,re.I)):
-              raise SystemExit('Final APK HTML script tag mismatch')
-          if 'https://cdn.jsdelivr.net/npm/pdfjs-dist' in s:
-              raise SystemExit('Final APK still contains remote PDF.js URL')
+              if r.returncode: print(r.stderr); raise SystemExit(f'Final APK JS syntax failed in inline script #{i}')
+          if len(re.findall(r'<script\b',s,re.I)) != len(re.findall(r'</script\s*>',s,re.I)): raise SystemExit('Final APK HTML script tag mismatch')
+          if 'https://cdn.jsdelivr.net/npm/pdfjs-dist' in s: raise SystemExit('Final APK still contains remote PDF.js URL')
           print('Final APK embedded HTML integrity check passed')
           PY
 
