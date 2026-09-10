@@ -26,7 +26,7 @@ jobs:
           set -euo pipefail
           rm -rf app
           mkdir -p app/www/vendor
-          git show c4681148d40d7c86763cd03edc786c1d4efb0eec:Index.html > app/www/index.html
+          git cat-file blob c4681148d40d7c86763cd03edc786c1d4efb0eec > app/www/index.html
           [ -d www-source ] && cp -R www-source/. app/www/ || true
           curl -fsSL https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js -o app/www/vendor/jspdf.umd.min.js
           curl -fsSL https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js -o app/www/vendor/html2canvas.min.js
