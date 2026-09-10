@@ -1,0 +1,169 @@
+name: All Convert Build #16
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Validate All Convert source
+        run: |
+          set -euo pipefail
+          test -f Index.html
+          test -f app-config.json
+          test -f build-manifest.json
+          grep -qi 'avif' Index.html
+          grep -q 'id="fileInput"' Index.html
+          node -e 'const c=require("./app-config.json"); console.log(c.name,c.package)'
+
+      - name: Prepare Capacitor Android
+        run: |
+          set -euo pipefail
+          rm -rf app
+          mkdir -p app/www
+          cp Index.html app/www/index.html
+          [ -d www-source ] && cp -R www-source/. app/www/ || true
+          cat > app/package.json <<'JSON'
+          {"name":"all-convert-apk","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"8.0.0","@capacitor/android":"8.0.0"},"devDependencies":{"@capacitor/cli":"8.0.0"}}
+          JSON
+          cd app
+          npm install
+          npx cap init "All Convert" "com.apkstudio.allconvert" --web-dir www
+          npx cap add android
+          npx cap sync android
+
+      - name: Add native AdMob and preserve Capacitor file picker
+        working-directory: app/android
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          gradle=Path('app/build.gradle')
+          t=gradle.read_text()
+          if 'com.google.android.gms:play-services-ads' not in t:
+              t=re.sub(r'(dependencies\s*\{)', r"\\1\n    implementation 'com.google.android.gms:play-services-ads:25.4.0'", t, count=1)
+          gradle.write_text(t)
+
+          manifest=Path('app/src/main/AndroidManifest.xml')
+          m=manifest.read_text()
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in m:
+              m=m.replace('<application', '<application', 1)
+              marker='<application'
+              pos=m.find('>', m.find(marker))
+              meta='\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9940728659432865~7835018675"/>'
+              m=m[:pos+1]+meta+m[pos+1:]
+          manifest.write_text(m)
+
+          src=Path('app/src/main/java/com/apkstudio/allconvert/MainActivity.java')
+          src.parent.mkdir(parents=True, exist_ok=True)
+          src.write_text(r'''package com.apkstudio.allconvert;
+
+import android.os.Bundle;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import com.getcapacitor.BridgeActivity;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        MobileAds.initialize(this, status -> {});
+
+        final android.webkit.WebView webView = getBridge().getWebView();
+        final ViewGroup oldParent = (ViewGroup) webView.getParent();
+        if (oldParent != null) oldParent.removeView(webView);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout.LayoutParams webParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        root.addView(webView, webParams);
+
+        AdView adView = new AdView(this);
+        adView.setAdUnitId("ca-app-pub-9940728659432865/7572128943");
+        int widthDp = (int) (getResources().getDisplayMetrics().widthPixels /
+                getResources().getDisplayMetrics().density);
+        adView.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, widthDp));
+        root.addView(adView, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        setContentView(root);
+        adView.loadAd(new AdRequest.Builder().build());
+    }
+}
+''')
+          PY
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('variables.gradle')
+          if p.exists():
+              t=p.read_text()
+              t=re.sub(r'minSdkVersion\s*=\s*\d+','minSdkVersion = 23',t)
+              t=re.sub(r'compileSdkVersion\s*=\s*\d+','compileSdkVersion = 36',t)
+              t=re.sub(r'targetSdkVersion\s*=\s*\d+','targetSdkVersion = 36',t)
+              p.write_text(t)
+          PY
+
+      - name: Build APK #16
+        working-directory: app/android
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Collect and verify APK
+        run: |
+          set -euo pipefail
+          APK=$(find app/android -type f -path '*/build/outputs/apk/debug/*.apk' | head -1)
+          test -n "$APK"
+          cp "$APK" app-debug.apk
+          sha256sum app-debug.apk | tee apk.sha256
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --verbose app-debug.apk
+          unzip -t app-debug.apk >/dev/null
+
+      - name: Upload All Convert APK #16
+        uses: actions/upload-artifact@v4
+        with:
+          name: All-Convert-APK-build-16
+          path: |
+            app-debug.apk
+            apk.sha256
+          if-no-files-found: error
+          retention-days: 14
