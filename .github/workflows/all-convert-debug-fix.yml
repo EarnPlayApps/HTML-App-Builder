@@ -26,7 +26,7 @@ jobs:
           set -euo pipefail
           rm -rf app
           mkdir -p app/www/vendor
-          cp Index.html app/www/index.html
+          git show c4681148d40d7c86763cd03edc786c1d4efb0eec:Index.html > app/www/index.html
           [ -d www-source ] && cp -R www-source/. app/www/ || true
           curl -fsSL https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js -o app/www/vendor/jspdf.umd.min.js
           curl -fsSL https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js -o app/www/vendor/html2canvas.min.js
@@ -38,8 +38,7 @@ jobs:
           cp native-bridge/ac-fix.html app/ac-fix.html
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('app/www/index.html')
-          s=p.read_text()
+          p=Path('app/www/index.html'); s=p.read_text()
           reps={
             'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js':'vendor/jspdf.umd.min.js',
             'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js':'vendor/html2canvas.min.js',
@@ -49,35 +48,22 @@ jobs:
             'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs':'vendor/pdf.mjs',
             'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs':'vendor/pdf.worker.mjs'}
           for a,b in reps.items(): s=s.replace(a,b)
-
-          # Replace the entire helper by boundaries, not by a regex that can be
-          # confused by the broken newline inside the existing regular expression.
-          a=s.find('function csvEscape(v){')
-          b=s.find('function csvToJSON',a)
-          if a>=0 and b>a:
-              fixed='function csvEscape(v){v=String(v??"");return /[",\\r\\n]/.test(v)?\'"\'+v.replace(/"/g,\'""\')+\'"\':v}\n'
-              s=s[:a]+fixed+s[b:]
-
           old='let currentFile=null,resultBlob=null,resultName="",previewUrl=null,toastTimer=null,extractedZipFiles=[];'
-          if 'window.__acResult' not in s:
-              s=s.replace(old,old+'window.__acResult=function(){return {blob:resultBlob,name:resultName};};',1)
+          if 'window.__acResult' not in s: s=s.replace(old,old+'window.__acResult=function(){return {blob:resultBlob,name:resultName};};',1)
           patch=Path('app/ac-fix.html').read_text()
           if 'acFixScript' not in s: s=s.replace('</body>',patch+'</body>',1)
           p.write_text(s)
           PY
-
           python3 - <<'PY'
           from pathlib import Path
           import re, subprocess, tempfile
           s=Path('app/www/index.html').read_text()
           blocks=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.I|re.S)
-          if len(blocks) < 2:
-              raise SystemExit('HTML integrity check failed: inline script blocks missing')
+          if len(blocks) < 2: raise SystemExit('HTML integrity check failed: inline script blocks missing')
           for i,b in enumerate(blocks,1):
               f=Path(tempfile.gettempdir())/f'ac-script-{i}.js'; f.write_text(b)
               r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
-              if r.returncode:
-                  print(r.stderr); raise SystemExit(f'JavaScript syntax check failed in inline script #{i}')
+              if r.returncode: print(r.stderr); raise SystemExit(f'JavaScript syntax check failed in inline script #{i}')
           opens=len(re.findall(r'<script\b',s,re.I)); closes=len(re.findall(r'</script\s*>',s,re.I))
           if opens != closes: raise SystemExit(f'HTML script tag mismatch: {opens} opens vs {closes} closes')
           print(f'HTML integrity OK: {opens} script tags, {len(blocks)} inline blocks')
