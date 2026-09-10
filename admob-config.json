@@ -1,22 +1,6 @@
 {
-  "platform": "android",
-  "appId": "ca-app-pub-9940728659432865~9994566162",
-  "Unitiklan": {
-    "sepanduk": {
-      "didayakan": true,
-      "id": "ca-app-pub-9940728659432865/8761375543"
-    },
-    "interstisial": {
-      "didayakan": false,
-      "id": ""
-    },
-    "diberi ganjaran": {
-      "didayakan": false,
-      "id": ""
-    },
-    "asli": {
-      "didayakan": false,
-      "id": ""
-    }
-  }
+  "enabled": false,
+  "appId": "",
+  "bannerUnitId": "",
+  "testAds": true
 }

@@ -1,206 +1,150 @@
 name: Build Android APK
-
 on:
   workflow_dispatch:
-  
-
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "21"
-
-      - name: Check Index.html
-        shell: bash
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - name: Validate
         run: |
           set -euo pipefail
-
-          if [ ! -f "Index.html" ]; then
-            echo "ERROR: Index.html tidak ditemui."
-            exit 1
-          fi
-
-          echo "Index.html OK"
-          ls -lh Index.html
-
-      - name: Create Capacitor project
-        shell: bash
+          test -f Index.html
+          test -f app-config.json
+          test -f build-manifest.json
+          node -e 'const c=require("./app-config.json"); console.log("APP_NAME="+c.name); console.log("APP_ID="+c.package)' >> "$GITHUB_ENV"
+      - name: Detect native project
         run: |
-          set -euo pipefail
-
+          if [ -d native-source ] && find native-source -type f \( -name settings.gradle -o -name settings.gradle.kts \) | grep -q .; then echo NATIVE_ANDROID=true >> "$GITHUB_ENV"; else echo NATIVE_ANDROID=false >> "$GITHUB_ENV"; fi
+      - name: Prepare native
+        if: env.NATIVE_ANDROID == 'true'
+        run: |
+          rm -rf native-build
+          cp -R native-source native-build
+          chmod +x "$(find native-build -type f -name gradlew | head -1)"
+      - name: Prepare Capacitor
+        if: env.NATIVE_ANDROID != 'true'
+        run: |
+          set -e
           rm -rf app
-
           mkdir -p app/www
-
-          cp "Index.html" "app/www/index.html"
-
-          cat > app/package.json <<'EOF'
-          {
-            "name": "html-app-builder",
-            "version": "1.0.0",
-            "private": true,
-            "scripts": {
-              "build": "echo no-web-build"
-            },
-            "dependencies": {
-              "@capacitor/core": "8.0.0",
-              "@capacitor/android": "8.0.0"
-            },
-            "devDependencies": {
-              "@capacitor/cli": "8.0.0"
-            }
-          }
-          EOF
-
-      - name: Install Capacitor
-        working-directory: app
-        shell: bash
-        run: |
-          set -euo pipefail
+          cp Index.html app/www/index.html
+          [ -d www-source ] && cp -R www-source/. app/www/ || true
+          cat > app/package.json <<'JSON'
+          {"name":"apk-studio-generated","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"8.0.0","@capacitor/android":"8.0.0"},"devDependencies":{"@capacitor/cli":"8.0.0"}}
+          JSON
+          cd app
           npm install
-
-      - name: Initialize Capacitor
-        working-directory: app
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          npx cap init \
-            "HTML App Builder" \
-            "com.earnplayapps.htmlappbuilder" \
-            --web-dir www
-
-      - name: Add Android
-        working-directory: app
-        shell: bash
-        run: |
-          set -euo pipefail
-
+          npx cap init "$APP_NAME" "$APP_ID" --web-dir www
           npx cap add android
-
-      - name: Configure Android SDK safely
+          npx cap sync android
+      - name: Configure SDK
+        if: env.NATIVE_ANDROID != 'true'
         working-directory: app/android
-        shell: bash
         run: |
-          set -euo pipefail
-
           python3 - <<'PY'
           from pathlib import Path
           import re
-
-          variables = Path("variables.gradle")
-
-          if variables.exists():
-              text = variables.read_text(encoding="utf-8")
-
-              text = re.sub(
-                  r'minSdkVersion\s*=\s*\d+',
-                  'minSdkVersion = 24',
-                  text
-              )
-
-              text = re.sub(
-                  r'compileSdkVersion\s*=\s*\d+',
-                  'compileSdkVersion = 36',
-                  text
-              )
-
-              text = re.sub(
-                  r'targetSdkVersion\s*=\s*\d+',
-                  'targetSdkVersion = 36',
-                  text
-              )
-
-              variables.write_text(text, encoding="utf-8")
-
-          print("Android SDK:")
-          print("minSdkVersion = 24")
-          print("compileSdkVersion = 36")
-          print("targetSdkVersion = 36")
+          p=Path('variables.gradle')
+          if p.exists():
+            t=p.read_text()
+            t=re.sub(r'minSdkVersion\s*=\s*\d+','minSdkVersion = 24',t)
+            t=re.sub(r'compileSdkVersion\s*=\s*\d+','compileSdkVersion = 36',t)
+            t=re.sub(r'targetSdkVersion\s*=\s*\d+','targetSdkVersion = 36',t)
+            p.write_text(t)
           PY
-
-      - name: Verify Gradle files
-        working-directory: app/android
-        shell: bash
+      - name: Install production keystore
+        if: env.NATIVE_ANDROID != 'true' && secrets.RELEASE_KEYSTORE_BASE64 != ''
+        env: {KEYSTORE_B64: '${{ secrets.RELEASE_KEYSTORE_BASE64 }}'}
+        run: echo "$KEYSTORE_B64" | base64 --decode > release-upload.jks
+      - name: Configure signing
+        if: env.NATIVE_ANDROID != 'true' && secrets.RELEASE_KEYSTORE_BASE64 != ''
+        env:
+          STORE_PASSWORD: '${{ secrets.RELEASE_STORE_PASSWORD }}'
+          KEY_ALIAS: '${{ secrets.RELEASE_KEY_ALIAS }}'
+          KEY_PASSWORD: '${{ secrets.RELEASE_KEY_PASSWORD }}'
         run: |
-          set -euo pipefail
-
-          test -f gradlew
-          test -f gradle/wrapper/gradle-wrapper.properties
-
-          echo "Gradle wrapper OK"
-
-          if [ -f variables.gradle ]; then
-            echo "===== variables.gradle ====="
-            cat variables.gradle
-            echo "============================"
-          fi
-
-      - name: Sync Capacitor
-        working-directory: app
-        shell: bash
+          cp release-upload.jks app/android/app/release-upload.jks
+          cat > app/android/keystore.properties <<EOF
+          storeFile=release-upload.jks
+          storePassword=$STORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/android/app/build.gradle')
+          t=p.read_text()
+          if 'keystore.properties' not in t:
+            prefix='def ksFile = rootProject.file("keystore.properties")\ndef ks = new Properties()\nif (ksFile.exists()) { ks.load(new FileInputStream(ksFile)) }\n'
+            inject='android {\n    signingConfigs {\n        release {\n            if (ksFile.exists()) { storeFile file(ks["storeFile"]); storePassword ks["storePassword"]; keyAlias ks["keyAlias"]; keyPassword ks["keyPassword"] }\n        }\n    }'
+            t=prefix+t.replace('android {',inject,1)
+            t=t.replace('release {','release {\n            if (ksFile.exists()) { signingConfig signingConfigs.release }',1)
+            p.write_text(t)
+          PY
+      - name: Build native
+        if: env.NATIVE_ANDROID == 'true'
         run: |
-          set -euo pipefail
-
-          npx cap sync android
-
-      - name: Build APK
-        working-directory: app/android
-        shell: bash
+          set -e
+          G=$(find native-build -type f -name gradlew | head -1); D=$(dirname "$G")
+          (cd "$D" && ./gradlew clean assembleDebug --stacktrace --no-daemon)
+          if node -e 'process.exit(require("./build-manifest.json").aab ? 0 : 1)'; then (cd "$D" && ./gradlew bundleRelease --stacktrace --no-daemon); fi
+      - name: Build generated
+        if: env.NATIVE_ANDROID != 'true'
         run: |
-          set -euo pipefail
-
+          set -e
+          cd app/android
           chmod +x gradlew
-
-          ./gradlew clean assembleDebug \
-            --stacktrace \
-            --no-daemon
-
-      - name: Verify APK
-        shell: bash
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+          if node -e 'process.exit(require("../../build-manifest.json").aab ? 0 : 1)'; then test -f ../release-upload.jks || { echo 'Production AAB signing requires RELEASE_KEYSTORE_BASE64 + password/alias secrets'; exit 1; }; ./gradlew bundleRelease --stacktrace --no-daemon; fi
+      - name: Collect
         run: |
-          set -euo pipefail
-
-          APK="app/android/app/build/outputs/apk/debug/app-debug.apk"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: APK tidak dihasilkan."
-            exit 1
-          fi
-
-          if [ ! -s "$APK" ]; then
-            echo "ERROR: APK kosong."
-            exit 1
-          fi
-
-          echo ""
-          echo "======================================"
-          echo "       APK BERJAYA DIHASILKAN"
-          echo "======================================"
-          echo ""
-
-          ls -lh "$APK"
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+          set -e
+          APK=$(find . -type f -path '*/build/outputs/apk/*/*.apk' | head -1); test -n "$APK"; cp "$APK" app-debug.apk
+          AAB=$(find . -type f -path '*/build/outputs/bundle/*/*.aab' | head -1 || true); [ -z "$AAB" ] || cp "$AAB" app-release.aab
+          sha256sum app-debug.apk > apk.sha256
+          [ ! -f app-release.aab ] || { unzip -t app-release.aab >/dev/null; sha256sum app-release.aab > aab.sha256; }
+      - name: Verify APK
+        run: |
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --verbose app-debug.apk
+      - name: Google Play auto submit
+        if: hashFiles('app-release.aab') != '' && secrets.PLAY_SERVICE_ACCOUNT_JSON != ''
+        env:
+          PLAY_JSON: '${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}'
+          PLAY_TRACK: '${{ secrets.PLAY_TRACK || 'internal' }}'
+        run: |
+          set -e
+          printf '%s' "$PLAY_JSON" > play-service-account.json
+          python3 -m pip install --disable-pip-version-check google-api-python-client==2.179.0 google-auth==2.40.3 google-auth-httplib2==0.2.0
+          python3 - <<'PY'
+          import json,os
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+          pkg=json.load(open('app-config.json'))['package']
+          c=service_account.Credentials.from_service_account_file('play-service-account.json',scopes=['https://www.googleapis.com/auth/androidpublisher'])
+          s=build('androidpublisher','v3',credentials=c,cache_discovery=False)
+          e=s.edits().insert(packageName=pkg,body={}).execute(); i=e['id']
+          b=s.edits().bundles().upload(packageName=pkg,editId=i,media_body=MediaFileUpload('app-release.aab',mimetype='application/octet-stream',resumable=True)).execute()
+          s.edits().tracks().update(packageName=pkg,editId=i,track=os.environ.get('PLAY_TRACK','internal'),body={'releases':[{'versionCodes':[str(b['versionCode'])],'status':'completed'}]}).execute()
+          s.edits().commit(packageName=pkg,editId=i).execute()
+          print('GOOGLE_PLAY_AUTO_SUBMIT=PASS')
+          PY
+      - uses: actions/upload-artifact@v4
         with:
-          name: HTML-App-Builder-APK
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          name: APK-Studio-APK
+          path: app-debug.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('app-release.aab') != ''
+        with:
+          name: APK-Studio-AAB
+          path: app-release.aab
           if-no-files-found: error

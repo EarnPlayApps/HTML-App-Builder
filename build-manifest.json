@@ -1,0 +1,14 @@
+{
+  "apkStudioFlow": "v1.0",
+  "source": "html",
+  "package": "com.apkstudio.allconvert",
+  "output": [
+    "apk"
+  ],
+  "aab": false,
+  "aabSigning": "production-keystore-when-configured",
+  "releaseSigningSupported": true,
+  "playAutoSubmitSupported": true,
+  "nativeAndroidBuildSupported": true,
+  "generatedAt": "2026-09-10T02:53:45.578Z"
+}
